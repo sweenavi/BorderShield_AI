@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import './variables.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-dark-navy);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  font-family: var(--font-sans);
+}
+
+/* Links */
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  border-radius: 0px !important; /* Strict 0px radius rule */
+}
+
+/* Component Geometry Resets */
+input, select, textarea, .card, .panel, .badge {
+  border-radius: 0px !important; /* Zero-radius everywhere */
+}
+
+/* Monospace overrides */
+.mono, .telemetry, .coordinate, .timestamp, td {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  feature-settings: "tnum" 1;
+}
+
+/* Table resets */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px 12px;
+}
+
+th {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-medium);
+}
+
+tbody tr:nth-child(even) {
+  background-color: var(--bg-navy);
+}
+
+tbody tr:nth-child(odd) {
+  background-color: var(--bg-dark-navy);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Custom Scrollbar for dark tactical theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark-navy); 
+}
+ 
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium); 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan); 
+}
+
+/* ── Global Animations ──────────────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-8px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ── Link overrides ─────────────────────────────────────────────────── */
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+a:hover {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+/* ── Semantic status text helpers ───────────────────────────────────── */
+.text-success  { color: var(--status-success) !important; }
+.text-warning  { color: var(--status-warning) !important; }
+.text-danger   { color: var(--status-danger)  !important; }
+.text-info     { color: var(--status-info)    !important; }
+.text-cyan     { color: var(--accent-cyan)    !important; }
+.text-gold     { color: var(--accent-gold)    !important; }
+.text-muted    { color: var(--text-muted)     !important; }
+
+/* ── Print Styles ───────────────────────────────────────────────────── */
+@media print {
+  .layout-sidebar, .layout-header {
+    display: none !important;
+  }
+  .layout-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+}
+

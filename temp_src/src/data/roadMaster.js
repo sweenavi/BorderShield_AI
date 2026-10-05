@@ -1,0 +1,118 @@
+// AUTO-GENERATED FROM EXACT DATASET VALUES
+export const roadMaster = [
+  {"id":"R001","from":"L01","to":"L02","distanceKm":1.2,"surfaceType":"Asphalt","terrainType":"Plain","operationalStatus":"Open","condition":"Excellent","weatherCondition":"Clear","visibility":"Excellent","twoWay":true},
+  {"id":"R002","from":"L01","to":"CP01","distanceKm":0.8,"surfaceType":"Asphalt","terrainType":"Plain","operationalStatus":"Open","condition":"Excellent","weatherCondition":"Sunny","visibility":"Excellent","twoWay":true},
+  {"id":"R003","from":"L01","to":"CP02","distanceKm":1.1,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Partly Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R004","from":"L02","to":"L03","distanceKm":1.4,"surfaceType":"Asphalt","terrainType":"Plain","operationalStatus":"Blocked","condition":"Excellent","weatherCondition":"Clear","visibility":"Excellent","twoWay":true},
+  {"id":"R005","from":"L03","to":"J06","distanceKm":3.8,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Restricted","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R006","from":"L03","to":"J07","distanceKm":4.5,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Restricted","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R007","from":"L04","to":"HP03","distanceKm":2.3,"surfaceType":"Asphalt","terrainType":"Plain","operationalStatus":"Open","condition":"Good","weatherCondition":"Sunny","visibility":"Excellent","twoWay":true},
+  {"id":"R008","from":"L05","to":"L06","distanceKm":4.9,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Open","condition":"Fair","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R009","from":"L05","to":"J01","distanceKm":3.6,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Open","condition":"Fair","weatherCondition":"Fog","visibility":"Moderate","twoWay":true},
+  {"id":"R010","from":"L06","to":"CP08","distanceKm":1.7,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Overcast","visibility":"Moderate","twoWay":true},
+  {"id":"R011","from":"L06","to":"J02","distanceKm":3.1,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Fog","visibility":"Moderate","twoWay":true},
+  {"id":"R012","from":"L06","to":"J03","distanceKm":4.2,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R013","from":"L07","to":"J08","distanceKm":5.4,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Restricted","condition":"Fair","weatherCondition":"Light Snow","visibility":"Moderate","twoWay":true},
+  {"id":"R014","from":"L07","to":"J09","distanceKm":5.8,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R015","from":"L07","to":"RP04","distanceKm":2.1,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Blocked","condition":"Fair","weatherCondition":"Heavy Snow","visibility":"Poor","twoWay":true},
+  {"id":"R016","from":"L08","to":"J07","distanceKm":3.4,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Restricted","condition":"Fair","weatherCondition":"Heavy Snow","visibility":"Poor","twoWay":true},
+  {"id":"R017","from":"L08","to":"J10","distanceKm":4.8,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R018","from":"L09","to":"CP05","distanceKm":1.6,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Open","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R019","from":"L09","to":"L10","distanceKm":8.2,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Open","condition":"Good","weatherCondition":"Partly Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R020","from":"L10","to":"J10","distanceKm":3.7,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Restricted","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R021","from":"L10","to":"J11","distanceKm":4.5,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Fog","visibility":"Moderate","twoWay":true},
+  {"id":"R022","from":"L11","to":"L12","distanceKm":5.7,"surfaceType":"Gravel","terrainType":"Snow","operationalStatus":"Open","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R023","from":"L11","to":"CP06","distanceKm":1.8,"surfaceType":"Gravel","terrainType":"Snow","operationalStatus":"Open","condition":"Fair","weatherCondition":"Heavy Snow","visibility":"Poor","twoWay":true},
+  {"id":"R024","from":"L12","to":"J12","distanceKm":4.2,"surfaceType":"Gravel","terrainType":"Snow","operationalStatus":"Open","condition":"Fair","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R025","from":"L12","to":"J13","distanceKm":5.1,"surfaceType":"Gravel","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R026","from":"L13","to":"RP06","distanceKm":2,"surfaceType":"Gravel","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R027","from":"L13","to":"J14","distanceKm":4.6,"surfaceType":"Gravel","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R028","from":"L14","to":"HP05","distanceKm":2.5,"surfaceType":"Gravel","terrainType":"Snow","operationalStatus":"Open","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R029","from":"L14","to":"J15","distanceKm":5.8,"surfaceType":"Compacted Snow","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Fog","visibility":"Moderate","twoWay":true},
+  {"id":"R030","from":"L15","to":"L16","distanceKm":8.4,"surfaceType":"Compacted Snow","terrainType":"Glacier","operationalStatus":"Restricted","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R031","from":"L14","to":"J09","distanceKm":5.6,"surfaceType":"Compacted Snow","terrainType":"Mountain","operationalStatus":"Restricted","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R032","from":"L14","to":"CP06","distanceKm":1.9,"surfaceType":"Gravel","terrainType":"Snow","operationalStatus":"Blocked","condition":"Fair","weatherCondition":"Heavy Snow","visibility":"Poor","twoWay":true},
+  {"id":"R033","from":"L15","to":"CP06","distanceKm":2.2,"surfaceType":"Compacted Snow","terrainType":"Glacier","operationalStatus":"Restricted","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R034","from":"L15","to":"CP10","distanceKm":2.8,"surfaceType":"Compacted Snow","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R035","from":"L16","to":"CP06","distanceKm":2.5,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R036","from":"L16","to":"BR05","distanceKm":3.7,"surfaceType":"Snow/Ice","terrainType":"Rocky Mountain","operationalStatus":"Blocked","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R037","from":"L17","to":"CP10","distanceKm":2.4,"surfaceType":"Snow/Ice","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R038","from":"L17","to":"OT01","distanceKm":1.6,"surfaceType":"Snow/Ice","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Cloudy","visibility":"Moderate","twoWay":true},
+  {"id":"R039","from":"L17","to":"CP12","distanceKm":2.9,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R040","from":"L18","to":"J14","distanceKm":4.8,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R041","from":"L18","to":"J15","distanceKm":5.4,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R042","from":"L18","to":"CP11","distanceKm":2.3,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R043","from":"L19","to":"J13","distanceKm":4.9,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R044","from":"L19","to":"RP07","distanceKm":2.1,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R045","from":"L19","to":"CP10","distanceKm":2.7,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R046","from":"L20","to":"J13","distanceKm":4.7,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R047","from":"L20","to":"CP12","distanceKm":2.4,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R048","from":"L20","to":"J14","distanceKm":5.3,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R049","from":"CP01","to":"BR01","distanceKm":1.9,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Partly Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R050","from":"CP01","to":"CP03","distanceKm":3.5,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R051","from":"CP02","to":"J08","distanceKm":4.6,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R052","from":"CP02","to":"RP04","distanceKm":2.8,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Sunny","visibility":"Excellent","twoWay":true},
+  {"id":"R053","from":"CP02","to":"HP01","distanceKm":2.2,"surfaceType":"Asphalt","terrainType":"Plain","operationalStatus":"Open","condition":"Excellent","weatherCondition":"Clear","visibility":"Excellent","twoWay":true},
+  {"id":"R054","from":"CP03","to":"HP04","distanceKm":2.6,"surfaceType":"Asphalt","terrainType":"Plain","operationalStatus":"Open","condition":"Excellent","weatherCondition":"Partly Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R055","from":"CP03","to":"J01","distanceKm":3.9,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Open","condition":"Fair","weatherCondition":"Fog","visibility":"Moderate","twoWay":true},
+  {"id":"R056","from":"CP05","to":"HP02","distanceKm":2.5,"surfaceType":"Gravel","terrainType":"Rocky","operationalStatus":"Open","condition":"Fair","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R057","from":"CP05","to":"J06","distanceKm":4.8,"surfaceType":"Gravel","terrainType":"Rocky","operationalStatus":"Open","condition":"Good","weatherCondition":"Partly Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R058","from":"CP05","to":"RP02","distanceKm":2.3,"surfaceType":"Gravel","terrainType":"Rocky","operationalStatus":"Open","condition":"Good","weatherCondition":"Clear","visibility":"Excellent","twoWay":true},
+  {"id":"R059","from":"CP05","to":"CP08","distanceKm":3.6,"surfaceType":"Gravel","terrainType":"Mountain","operationalStatus":"Restricted","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R060","from":"CP06","to":"J11","distanceKm":4.4,"surfaceType":"Compacted Snow","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R061","from":"CP07","to":"J12","distanceKm":4.6,"surfaceType":"Gravel","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R062","from":"CP08","to":"J04","distanceKm":3.4,"surfaceType":"Gravel","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R063","from":"CP08","to":"J05","distanceKm":3.8,"surfaceType":"Gravel","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R064","from":"CP09","to":"J05","distanceKm":4.2,"surfaceType":"Snow/Ice","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Fog","visibility":"Moderate","twoWay":true},
+  {"id":"R065","from":"CP10","to":"HP05","distanceKm":2.1,"surfaceType":"Compacted Snow","terrainType":"Rocky","operationalStatus":"Open","condition":"Good","weatherCondition":"Partly Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R066","from":"CP11","to":"J15","distanceKm":4.9,"surfaceType":"Snow/Ice","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R067","from":"CP12","to":"OT01","distanceKm":1.8,"surfaceType":"Snow/Ice","terrainType":"Snow","operationalStatus":"Open","condition":"Fair","weatherCondition":"Heavy Snow","visibility":"Poor","twoWay":true},
+  {"id":"R068","from":"RP02","to":"HP04","distanceKm":2.7,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R069","from":"RP04","to":"J08","distanceKm":3.3,"surfaceType":"Asphalt","terrainType":"Valley","operationalStatus":"Restricted","condition":"Good","weatherCondition":"Clear","visibility":"Excellent","twoWay":true},
+  {"id":"R070","from":"RP05","to":"HP03","distanceKm":2.4,"surfaceType":"Asphalt","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R071","from":"RP05","to":"BR04","distanceKm":2.9,"surfaceType":"Asphalt","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Poor","twoWay":true},
+  {"id":"R072","from":"RP06","to":"J07","distanceKm":3.8,"surfaceType":"Gravel","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R073","from":"RP07","to":"BR05","distanceKm":2.6,"surfaceType":"Compacted Snow","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R074","from":"HP01","to":"OT02","distanceKm":2.3,"surfaceType":"Asphalt","terrainType":"Glacier","operationalStatus":"Restricted","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R075","from":"HP03","to":"OT03","distanceKm":2.8,"surfaceType":"Asphalt","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Poor","twoWay":true},
+  {"id":"R076","from":"HP02","to":"J06","distanceKm":2.9,"surfaceType":"Gravel","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Partly Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R077","from":"HP06","to":"J13","distanceKm":3.6,"surfaceType":"Snow/Ice","terrainType":"Rocky","operationalStatus":"Open","condition":"Good","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R078","from":"J01","to":"J02","distanceKm":4.3,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Fog","visibility":"Moderate","twoWay":true},
+  {"id":"R079","from":"J02","to":"J03","distanceKm":3.8,"surfaceType":"Asphalt","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R080","from":"J03","to":"J04","distanceKm":4.6,"surfaceType":"Asphalt","terrainType":"Glacier","operationalStatus":"Restricted","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R081","from":"J04","to":"BR02","distanceKm":2.4,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Restricted","condition":"Fair","weatherCondition":"Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R082","from":"BR02","to":"J05","distanceKm":2.8,"surfaceType":"Asphalt","terrainType":"Rocky","operationalStatus":"Blocked","condition":"Fair","weatherCondition":"Partly Cloudy","visibility":"Good","twoWay":true},
+  {"id":"R083","from":"J03","to":"OT04","distanceKm":3.5,"surfaceType":"Gravel","terrainType":"Valley","operationalStatus":"Open","condition":"Good","weatherCondition":"Clear","visibility":"Excellent","twoWay":true},
+  {"id":"R084","from":"J04","to":"OT04","distanceKm":3.1,"surfaceType":"Gravel","terrainType":"Mountain","operationalStatus":"Open","condition":"Fair","weatherCondition":"Fog","visibility":"Moderate","twoWay":true},
+  {"id":"R085","from":"J06","to":"BR01","distanceKm":2.6,"surfaceType":"Asphalt","terrainType":"Snow","operationalStatus":"Open","condition":"Fair","weatherCondition":"Snow","visibility":"Poor","twoWay":true},
+  {"id":"R086","from":"J09","to":"BR04","distanceKm":2.9,"surfaceType":"Asphalt","terrainType":"Glacier","operationalStatus":"Restricted","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+  {"id":"R087","from":"J09","to":"J10","distanceKm":4.7,"surfaceType":"Asphalt","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R088","from":"J10","to":"J11","distanceKm":4.4,"surfaceType":"Gravel","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R089","from":"J11","to":"J12","distanceKm":4.2,"surfaceType":"Gravel","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Blizzard","visibility":"Very Poor","twoWay":true},
+  {"id":"R090","from":"J14","to":"OT01","distanceKm":3.7,"surfaceType":"Snow/Ice","terrainType":"Glacier","operationalStatus":"Open","condition":"Poor","weatherCondition":"Heavy Snow","visibility":"Very Poor","twoWay":true},
+];
+
+export const getAdjacencyList = () => {
+  const adj = {};
+  roadMaster.forEach(road => {
+    if (!adj[road.from]) adj[road.from] = [];
+    if (!adj[road.to]) adj[road.to] = [];
+    
+    const edgeData = {
+      node: road.to,
+      roadId: road.id,
+      distance: road.distanceKm,
+      type: road.terrainType, // mapping terrainType to type
+      surfaceType: road.surfaceType,
+      condition: road.condition,
+      status: road.operationalStatus,
+      twoWay: road.twoWay
+    };
+
+    adj[road.from].push({ ...edgeData, node: road.to });
+    if (road.twoWay) {
+      adj[road.to].push({ ...edgeData, node: road.from });
+    }
+  });
+  return adj;
+};

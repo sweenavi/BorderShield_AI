@@ -1,0 +1,286 @@
+Absolutely buddy. Below is a **plain text project context** that you can paste into any new ChatGPT conversation so it immediately understands how **BorderShield AI** is designed and how the AI engine should use the historical database and live data.
+
+---
+
+# BorderShield AI - Historical Database & Real-Time AI Processing Architecture
+
+## Project Overview
+
+BorderShield AI is an AI-Based Route Risk Prediction and Intelligent Route Decision Support System developed as a B.Tech academic project.
+
+The system uses a PostgreSQL database (hosted on Supabase) as its primary data source. This database stores validated historical and reference information about the operational region.
+
+The database is **not** intended to store continuously changing real-time values. Instead, it serves as a stable reference database.
+
+---
+
+## Historical Database Purpose
+
+The PostgreSQL database contains historical and static reference data including:
+
+* Geographic Master
+* Road Master
+* Terrain Master
+* Weather Master
+* Checkpoint Master
+* Helipad Master
+* Air Route Master
+* Rest Point Master
+* Observation Tower Master
+
+This data represents validated operational information used as the baseline for AI calculations.
+
+Examples include:
+
+* Road distances
+* Road type
+* Terrain type
+* Elevation
+* Historical weather values
+* Weather zones
+* Operational locations
+* Checkpoints
+* Helipads
+* Observation towers
+
+The database should remain stable and should not be modified by temporary real-time data.
+
+---
+
+## Real-Time Data Integration
+
+Whenever the system receives a route prediction request, the AI should first read the required historical data from PostgreSQL.
+
+If live APIs are available, the AI should fetch:
+
+* Live temperature
+* Live snowfall
+* Live rainfall
+* Live wind speed
+* Live visibility
+* Live road status (if available)
+
+These live values are **not written back into PostgreSQL**.
+
+Instead, they are merged into a temporary in-memory dataset used only for the current prediction.
+
+---
+
+## Temporary Working Dataset
+
+The AI creates a temporary working copy of the required road information.
+
+Example:
+
+Historical Database
+
+Road R021
+
+Temperature = 18°C
+
+Snowfall = 12 cm
+
+Visibility = 700 m
+
+Historical Risk = 50
+
+↓
+
+Live Weather API
+
+Temperature = 15°C
+
+Snowfall = 18 cm
+
+Visibility = 400 m
+
+↓
+
+Temporary AI Dataset
+
+Temperature = 15°C
+
+Snowfall = 18 cm
+
+Visibility = 400 m
+
+Historical Road Information
+
+Terrain Information
+
+Elevation Information
+
+Road Type
+
+Mission Information
+
+This temporary dataset exists only during the calculation.
+
+After the prediction is completed, it is discarded.
+
+The PostgreSQL database remains unchanged.
+
+---
+
+## AI Risk Calculation
+
+The AI Risk Engine recalculates the risk using both historical information and current live conditions.
+
+Conceptually:
+
+Final Risk
+
+=
+
+Historical Risk
+
+*
+
+Live Weather Adjustment
+
+*
+
+Terrain Adjustment
+
+*
+
+Elevation Adjustment
+
+*
+
+Road Type Adjustment
+
+*
+
+Mission Adjustment
+
+*
+
+Road Condition Adjustment
+
+Example:
+
+Historical Risk = 50
+
+Temperature Drop
+
++8
+
+Heavy Snow
+
++7
+
+Poor Visibility
+
++5
+
+Final Risk = 70
+
+The value 70 is generated dynamically.
+
+It is **not stored permanently** inside PostgreSQL.
+
+---
+
+## Offline Mode
+
+If the Weather API or any real-time service is unavailable:
+
+The AI simply uses the historical values stored inside PostgreSQL.
+
+Example:
+
+Weather API
+
+Unavailable
+
+↓
+
+Use Historical Weather
+
+↓
+
+Continue AI Prediction
+
+↓
+
+Generate Route
+
+This allows the system to function even without internet connectivity.
+
+---
+
+## Database Philosophy
+
+The PostgreSQL database is treated as a Historical Reference Database.
+
+It should:
+
+* Store validated reference data.
+* Remain unchanged during predictions.
+* Support offline operation.
+* Serve as the baseline for AI calculations.
+* Be reusable for testing and demonstrations.
+
+The AI Engine is responsible for combining historical data with real-time information.
+
+---
+
+## Final System Architecture
+
+```text
+User Input
+      │
+      ▼
+FastAPI Backend
+      │
+      ▼
+Read Historical Data
+(PostgreSQL - Supabase)
+      │
+      ▼
+Fetch Live Weather APIs (Optional)
+      │
+      ▼
+Create Temporary Working Dataset
+      │
+      ▼
+AI Risk Engine
+      │
+      ▼
+Calculate Updated Risk
+      │
+      ▼
+Run Routing Algorithm
+(Dijkstra / A*)
+      │
+      ▼
+Safest Route Recommendation
+      │
+      ▼
+Return Results to User
+```
+
+---
+
+## Important Design Principle
+
+Historical PostgreSQL data is **never overwritten** by real-time values.
+
+Real-time values exist only in a temporary working dataset during the current prediction.
+
+After the prediction is completed, the temporary dataset is discarded.
+
+This architecture provides:
+
+* Reliable historical reference data
+* Offline capability
+* Real-time adaptability
+* Clean database design
+* Scalable AI processing
+* Easy debugging and testing
+* Professional software architecture suitable for a B.Tech final-year project
+
+---
+
+This text can be reused in future conversations so that any ChatGPT instance immediately understands the intended architecture and continues designing or coding BorderShield AI according to the same principles.

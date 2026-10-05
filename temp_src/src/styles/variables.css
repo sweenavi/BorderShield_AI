@@ -1,0 +1,75 @@
+:root {
+  /* =====================================================
+   * BORDERSHIELD AI — FROZEN SEMANTIC DESIGN SYSTEM
+   * All colors carry MEANING. Do not use decoratively.
+   * ===================================================== */
+
+  /* Surface Layers */
+  --bg-dark-navy: #060B12;   /* Level 0 — Map canvas / outermost background */
+  --bg-navy: #0D1B2A;        /* Level 1 — Structural panels / sidebar */
+  --bg-card: #112233;        /* Level 2 — Card surfaces / panels */
+  --bg-panel: #112233;       /* Alias */
+  --bg-elevated: #152840;    /* Level 3 — Hover state / elevated cards */
+
+  /* ---- SEMANTIC ACCENT COLORS ---- */
+
+  /* CYAN — Primary action / selected navigation / Dijkstra route */
+  --accent-cyan: #00E5FF;
+  --accent-cyan-dim: rgba(0, 229, 255, 0.12);
+  --accent-cyan-border: rgba(0, 229, 255, 0.4);
+
+  /* GOLD — Institutional brand identity / warnings border highlights */
+  --accent-gold: #C9A84C;
+  --accent-gold-dim: rgba(201, 168, 76, 0.12);
+
+  /* MUTED BLUE — Information / passive data */
+  --accent-blue: #3A7BD5;
+  --accent-blue-dim: rgba(58, 123, 213, 0.12);
+
+  /* ---- SEMANTIC STATUS COLORS ---- */
+  /* GREEN = OPERATIONAL / SAFE */
+  --status-success: #22C55E;
+  --status-success-dim: rgba(34, 197, 94, 0.12);
+  --status-success-border: rgba(34, 197, 94, 0.4);
+
+  /* AMBER = WARNING / DEGRADED / RESTRICTED */
+  --status-warning: #F59E0B;
+  --status-warning-dim: rgba(245, 158, 11, 0.12);
+  --status-warning-border: rgba(245, 158, 11, 0.4);
+
+  /* RED = CRITICAL / BLOCKED / DANGER */
+  --status-danger: #EF4444;
+  --status-danger-dim: rgba(239, 68, 68, 0.12);
+  --status-danger-border: rgba(239, 68, 68, 0.4);
+
+  /* BLUE = INFORMATIONAL */
+  --status-info: #60A5FA;
+  --status-info-dim: rgba(96, 165, 250, 0.12);
+
+  /* ---- MAP ROAD STATE COLORS ---- */
+  --road-open: #22C55E;        /* Operational: Green */
+  --road-restricted: #F59E0B;  /* Degraded: Amber dashed */
+  --road-blocked: #EF4444;     /* Blocked: Red */
+  --road-selected: #00E5FF;    /* Selected route: Cyan animated */
+  --road-alternative: #3A7BD5; /* Alternatives: Blue */
+  --road-inactive: #304356;    /* Background roads: Dark grey */
+
+  /* ---- TEXT ---- */
+  --text-primary: #F0F4F8;
+  --text-secondary: #8FAAB8;
+  --text-muted: #4D6272;
+
+  /* ---- BORDERS ---- */
+  --border-light: #1A2E40;
+  --border-medium: #253D54;
+  --border-active: var(--accent-cyan);
+
+  /* ---- SHADOWS / GLOW ---- */
+  --glow-cyan: 0 0 12px rgba(0, 229, 255, 0.25);
+  --glow-danger: 0 0 10px rgba(239, 68, 68, 0.3);
+  --shadow-panel: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+  /* ---- TYPOGRAPHY ---- */
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}

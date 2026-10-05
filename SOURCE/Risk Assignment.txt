@@ -1,0 +1,405 @@
+Risk Assignment to each Parameter
+
+Dataset : Weather Master 
+
+1.Temperature
+
+Minimum: -40°C
+Cold Threshold: -10°C
+Hot Threshold: 25°C
+Maximum: 30°C
+
+Cold Risk Function:
+((-10 - Temperature) / 30) × 100
+
+Normal Risk:
+0
+
+Hot Risk Function:
+((Temperature - 25) / 5) × 100
+
+
+
+2. Wind Speed
+
+Minimum: 0 km/h
+Normal Threshold: 30 km/h
+Maximum: 70 km/h
+
+Normal Risk:
+0
+
+Wind Risk Function:
+((Wind Speed - 30) / 40) × 100
+
+Maximum Risk:
+100
+
+Condition:
+
+Wind Speed ≤ 30 km/h → Risk = 0
+30 < Wind Speed < 70 km/h → Apply Wind Risk Function
+Wind Speed ≥ 70 km/h → Risk = 100
+
+
+
+3.Rainfall
+
+Since the dataset only contains 0 and 5, I suggest:
+
+Rainfall (mm)	Risk
+0	          0
+5	         20
+
+For future/live values, we can define additional lookup bands:
+
+Rainfall (mm)	Risk
+0	          0
+1–5	         20
+6–20	         50
+21–50	         80
+>50	        100
+
+
+
+4.Snowfall
+
+Here the dataset gives us much more useful information:
+
+Snowfall value	Risk
+0	          0
+5	         20
+20	         50
+50	         80
+>50	        100
+
+
+
+5.Visibility 
+
+Visibility Category	Visibility Risk
+Excellent	              0
+Good	                     20
+Moderate	             40
+Poor	                     70
+Very Poor	            100
+
+
+
+Dataset : Terrain Master 
+
+6.Terrain Type
+
+Terrain Type	Terrain Risk
+Plain	             10
+Valley	             20
+Mountain	     50
+Rocky	             60
+Rocky Mountain	     70
+Snow	             80
+Glacier	            100
+
+
+
+7.Avg Elevation
+
+Avg Elevation	Interpretation	               Risk
+< 3,000 m	Lower-altitude zone	          0
+3,000–3,500 m	High-altitude zone	         10
+3,500–4,000 m	Very high altitude	         25
+4,000–4,500 m	Severe high altitude	         45
+4,500–5,000 m	Very severe altitude	         65
+5,000–5,500 m	Extreme altitude	         80
+5,500–6,000 m	Very extreme altitude	         95
+> 6,000 m	Exceptional/extreme altitude	100
+
+
+
+8.Landslide Risk
+
+Landslide Risk	Risk Score
+No	            0
+Low	           25
+Medium	           60
+High	          100
+
+
+
+9.Avalanche Risk
+
+Avalanche Risk	Risk Score
+No	            0
+Low	           20
+Medium	           45
+High	           75
+Very High	  100
+
+
+
+10.Water Crossing
+
+Water Crossing	Risk Score
+False / No	0
+True / Yes	60
+
+
+
+Dataset : Road Master 
+
+11.Road Type
+
+Road Type	       Risk
+Primary Road	        10
+Primary Connector	15
+Urban Connector	        15
+Valley Road	        20
+Service Road	        20
+Service Connector	20
+Junction Connector	25
+Valley Connector	25
+Mountain Highway	30
+Security Corridor	30
+Security Access	        35
+Security Connector	35
+Patrol Route	        40
+Observation Access	40
+Observation Route	40
+Mountain Road	        45
+Mountain Connector	45
+Bridge Access	        50
+Bridge Connector	50
+Helipad Access	        50
+Helipad Connector	50
+Snow Access Road	60
+Snow Service Route	60
+Snow Patrol Road	65
+Peak Access Route	65
+Glacier Service Route	70
+Glacier Connector	70
+Glacier Route	        75
+Glacier Track	        80
+Glacier Helipad Route	80
+
+
+
+12.Surface Type
+
+Surface Type	Risk Score
+Asphalt	             0
+Gravel	            20
+Compacted Snow	    50
+Snow/Ice	    80
+
+
+
+
+
+
+
+Final Feasibility / Constraint Points
+
+### A. Route Availability Constraints
+
+1. **Road Status**
+
+   * Open → route available
+   * Restricted → route available with restriction/treatment
+   * Blocked/Closed → **route unavailable**
+
+2. **Route Accessibility**
+
+   * Source and destination must be connected to the available road/air graph.
+   * Disconnected route → **infeasible**
+
+3. **Road Type Compatibility**
+
+   * Check whether the selected transport mode is permitted/suitable for that road type.
+
+---
+
+### B. Transport Compatibility Constraints
+
+4. **Vehicle Suitability**
+
+   * Compare mission transport/vehicle type with `vehicle_suitability`.
+   * Example:
+
+     * Snow Vehicle → Snow-compatible route
+     * 4×4 → 4×4-compatible route
+     * Specialized Vehicle → specialized route
+   * Incompatible → **infeasible or restricted**
+
+5. **Surface Compatibility**
+
+   * Check transport mode against:
+
+     * Asphalt
+     * Gravel
+     * Compacted Snow
+     * Snow/Ice
+   * Example: normal vehicle + Snow/Ice → potentially restricted/infeasible depending on vehicle capability.
+
+6. **Terrain Compatibility**
+
+   * Check whether the selected mode/vehicle is appropriate for the terrain type.
+   * Example:
+
+     * Glacier
+     * Snow
+     * Rocky Mountain
+   * Compatibility should be determined separately from Terrain Risk.
+
+---
+
+### C. Environmental Feasibility Constraints
+
+7. **Water-Crossing Feasibility**
+
+   * Water Crossing = No → no constraint.
+   * Water Crossing = Yes → check whether the selected transport mode/vehicle can cross.
+   * If not capable → **infeasible**.
+   * If capable → route remains available.
+
+8. **Avalanche Constraint**
+
+   * Very High avalanche condition can trigger an operational restriction.
+   * If the current operational rule says the route cannot be used → **remove edge**.
+   * Otherwise retain with appropriate treatment.
+
+9. **Landslide Constraint**
+
+   * High landslide condition can trigger route restriction/closure depending on operational status.
+   * Do not automatically convert Landslide Risk into a closure.
+
+10. **Visibility Constraint**
+
+* Extremely poor visibility can trigger a transport-specific operational restriction.
+* Example:
+
+  * Ground movement may have one threshold.
+  * Air movement may have another.
+* The visibility risk score itself remains unchanged.
+
+11. **Extreme Weather Constraint**
+
+* Certain combinations of weather conditions can make a route temporarily infeasible.
+* Example:
+
+  * Blizzard + very poor visibility + severe snowfall.
+* This should be implemented as an **operational rule**, not as another risk factor.
+
+---
+
+### D. Mission Constraints
+
+12. **Mission Type Compatibility**
+
+* Check whether the route/mode is appropriate for the mission.
+* Example:
+
+  * Supply → requires appropriate ground/air transport capability.
+  * Patrol → may permit routes unsuitable for heavy vehicles.
+  * Emergency → may require faster/accessible alternatives.
+
+13. **Transport Mode**
+
+* Ground
+* Air
+* Foot
+* Any future supported mode
+
+Each mode should have its own feasibility rules.
+
+14. **Mission Priority**
+
+* Priority should **not change environmental risk**.
+* It can affect operational routing policy.
+* Example: a high-priority mission may allow a restricted route if operational rules permit it, rather than treating the route as inherently safer.
+
+---
+
+### E. Infrastructure / Operational Constraints
+
+15. **Checkpoint Availability**
+
+* If a checkpoint is mandatory for the route and unavailable → route may become restricted/infeasible.
+* Otherwise it can contribute to ETA/operational processing.
+
+16. **Helipad Availability**
+
+* For air missions:
+
+  * required helipad exists
+  * helipad operational/available
+  * route can connect to it
+
+17. **Air Route Availability**
+
+* Air missions should use the **Air Route Master** rather than the land-road graph.
+
+18. **Rest Point / Operational Stop Availability**
+
+* If a mission requires designated rest/refueling/operational points, verify their availability.
+* This should primarily affect feasibility/ETA, not environmental risk.
+
+---
+
+# The most important constraints for your prototype
+
+You **do not need to implement all 18 immediately**.
+
+For your current BorderShield prototype, I recommend freezing these **8 core feasibility constraints**:
+
+```text
+1. Road Status
+2. Transport/Vehicle Compatibility
+3. Road Surface Compatibility
+4. Terrain Compatibility
+5. Water-Crossing Feasibility
+6. Extreme Weather/Visibility Constraint
+7. Mission-Type Compatibility
+8. Route/Graph Connectivity
+```
+
+Then treat these as additional operational modules:
+
+```text
+9. Checkpoint Availability
+10. Helipad Availability
+11. Air Route Availability
+12. Rest Point Availability
+```
+
+## Final conceptual distinction
+
+Your system should make decisions in this order:
+
+```text
+          ROUTE
+            ↓
+     Is it available?
+            ↓
+       [CONSTRAINT]
+            ↓
+     Is it feasible for
+     this mission/mode?
+            ↓
+       [FEASIBILITY]
+            ↓
+     What is its environmental
+     operational risk?
+            ↓
+          [ORAM]
+            ↓
+     Generate Operational Cost
+            ↓
+       Dynamic Edge Weight
+            ↓
+    Standard Dijkstra
+```
+
+And one particularly important rule:
+
+> **A constraint should remove or restrict an edge; it should not automatically increase the 0–100 environmental risk score.**
+
+That keeps your **standardization work frozen and clean**, while mission-specific behavior is handled by the separate feasibility layer.

@@ -1,0 +1,961 @@
+================================================================================
+                           BorderShield AI
+================================================================================
+
+Chapter 5
+BorderShield Dynamic Multi-Criteria Routing Algorithm (BDMRA)
+
+PART 1
+
+================================================================================
+5.1 Introduction
+================================================================================
+
+Route planning is one of the most critical functions of any transportation,
+logistics, or decision support system. Traditional navigation systems primarily
+focus on identifying the shortest path between two locations by considering
+only the physical distance or travel time. Although such methods are suitable
+for civilian navigation, they are insufficient for mission-oriented
+environments where operational safety is more important than simply reaching
+the destination through the shortest route.
+
+In the BorderShield AI system, selecting an operational route requires the
+analysis of multiple real-time and static operational factors. A road that is
+geographically shorter may become unsuitable due to severe weather conditions,
+difficult terrain, temporary road closures, or mission-specific operational
+constraints. Therefore, selecting the shortest route alone cannot guarantee
+mission success or operational safety.
+
+To overcome these limitations, BorderShield AI adopts a hybrid routing
+framework known as the BorderShield Dynamic Multi-Criteria Routing Algorithm
+(BDMRA). Instead of considering only distance, the framework evaluates every
+road segment using multiple operational datasets before determining the optimal
+route.
+
+The proposed framework combines two major components.
+
+The first component is a Multi-Criteria Risk Evaluation Engine (MCREE), which
+analyzes operational datasets such as the Road Master, Terrain Master, Weather
+Master, Geographic Master, and Mission Information to calculate the operational
+cost associated with each road segment.
+
+The second component is the Standard Dijkstra Shortest Path Algorithm, which
+uses these dynamically generated operational costs as edge weights to identify
+the route having the minimum cumulative operational cost.
+
+By separating the decision-making process from the routing process, the
+proposed framework provides dynamic, adaptive, and intelligent route
+recommendations while retaining the computational efficiency and reliability of
+the Standard Dijkstra Algorithm.
+
+Consequently, BorderShield AI is capable of recommending routes that are not
+merely the shortest, but also the safest and most operationally suitable
+according to current environmental and mission conditions.
+
+================================================================================
+5.2 Objective of the Algorithm
+================================================================================
+
+The primary objective of the BorderShield Dynamic Multi-Criteria Routing
+Algorithm (BDMRA) is to determine the safest and most operationally suitable
+route between a selected source and destination by considering multiple
+operational parameters rather than relying solely on geographical distance.
+
+The algorithm is designed to achieve the following objectives:
+
+• Build a weighted graph representing the operational road network.
+
+• Collect operational information from multiple datasets.
+
+• Evaluate every road segment using multiple risk factors.
+
+• Dynamically calculate the operational cost of each road.
+
+• Assign the calculated operational cost as the edge weight.
+
+• Execute the Standard Dijkstra Shortest Path Algorithm on the dynamically
+  weighted graph.
+
+• Recommend the route having the minimum cumulative operational cost.
+
+• Automatically adapt route recommendations whenever operational conditions
+  change.
+
+This approach enables the system to perform intelligent route planning under
+dynamic operational environments while maintaining computational efficiency.
+
+================================================================================
+5.3 Problem Statement
+================================================================================
+
+Conventional shortest-path algorithms assume that the cost of travelling
+through a road segment remains fixed and is generally represented by its
+physical distance or travel time.
+
+However, in mission-oriented environments, the suitability of a road depends on
+numerous operational factors that continuously change over time.
+
+For example, a road may initially be safe under clear weather conditions but
+become highly risky after heavy snowfall or reduced visibility. Similarly, a
+shorter mountain road may present greater operational challenges than a longer
+plain route.
+
+Therefore, relying exclusively on distance-based routing may result in unsafe
+route recommendations.
+
+BorderShield AI addresses this limitation by evaluating multiple operational
+datasets before route computation.
+
+Instead of assigning fixed edge weights, the system dynamically calculates an
+operational cost for every road segment based on current environmental and
+mission conditions.
+
+This dynamic operational cost enables the routing process to adapt
+automatically to changing operational scenarios, ensuring that recommended
+routes remain both safe and efficient.
+
+================================================================================
+5.4 Need for a Dynamic Routing Framework
+================================================================================
+
+The operational environment considered by BorderShield AI is highly dynamic.
+
+Weather conditions, terrain accessibility, road availability, and mission
+priorities may change at any time.
+
+Consequently, the routing framework must be capable of adapting to these
+changes without requiring manual intervention.
+
+A dynamic routing framework is required because:
+
+• Road conditions may change due to weather or operational incidents.
+
+• Terrain difficulty varies across different geographical regions.
+
+• Mission priorities influence route selection.
+
+• Different vehicle types may require different routes.
+
+• Temporary road closures must immediately affect routing decisions.
+
+• New operational information should automatically update future
+  recommendations.
+
+To satisfy these requirements, BorderShield AI utilizes a dynamic routing
+framework in which road costs are recalculated whenever operational datasets
+are updated.
+
+The routing algorithm subsequently generates a new optimal route using the
+updated operational costs.
+
+As a result, route recommendations remain synchronized with the latest
+operational information throughout the mission lifecycle.
+
+================================================================================
+END OF CHAPTER 5 - PART 1
+Version : 1.0 (Frozen)
+Status  : Approved
+================================================================================
+================================================================================
+                           BorderShield AI
+================================================================================
+
+Chapter 5
+BorderShield Dynamic Multi-Criteria Routing Algorithm (BDMRA)
+
+PART 2
+
+================================================================================
+5.5 Algorithm Selection Process
+================================================================================
+
+Selecting an appropriate routing algorithm is one of the most critical design
+decisions in the BorderShield AI system. Since the primary objective of the
+project is to recommend the safest operational route rather than merely the
+shortest route, it was necessary to evaluate several graph traversal and
+shortest-path algorithms before selecting the final routing architecture.
+
+The selected algorithm needed to satisfy the following project requirements:
+
+• Handle weighted road networks.
+
+• Support dynamic operational conditions.
+
+• Allow integration of multiple datasets.
+
+• Produce reliable route recommendations.
+
+• Be computationally efficient.
+
+• Be easy to implement, understand, and explain in an academic project.
+
+To determine the most suitable solution, several pathfinding algorithms and
+routing approaches were studied, analyzed, and compared.
+
+================================================================================
+5.6 Algorithms Considered During Research
+================================================================================
+
+During the research phase, multiple graph traversal and shortest-path
+algorithms were evaluated based on their characteristics, computational
+efficiency, and suitability for the operational requirements of BorderShield
+AI.
+
+The following algorithms were considered before selecting the final routing
+framework.
+
+--------------------------------------------------------------------------------
+5.6.1 Breadth First Search (BFS)
+--------------------------------------------------------------------------------
+
+Breadth First Search (BFS) is one of the simplest graph traversal algorithms.
+It explores neighboring nodes level by level until the destination node is
+reached.
+
+Advantages
+
+• Simple implementation.
+
+• Fast for unweighted graphs.
+
+• Guarantees the minimum number of edges between two nodes.
+
+Limitations
+
+• Does not support weighted graphs.
+
+• Treats every road as equally important.
+
+• Cannot differentiate between safe and unsafe roads.
+
+Suitability for BorderShield AI
+
+Since the operational road network contains roads with different distances,
+terrain conditions, and operational risks, BFS cannot represent the actual
+cost of travelling through each road.
+
+Decision
+
+Rejected.
+
+--------------------------------------------------------------------------------
+5.6.2 Depth First Search (DFS)
+--------------------------------------------------------------------------------
+
+Depth First Search (DFS) explores one path completely before backtracking to
+search alternative paths.
+
+Advantages
+
+• Easy to implement.
+
+• Useful for graph traversal and connectivity analysis.
+
+Limitations
+
+• Does not guarantee the optimal path.
+
+• Does not support weighted routing.
+
+• May produce inefficient routes.
+
+Suitability for BorderShield AI
+
+The objective of BorderShield AI is to recommend the most suitable operational
+route rather than simply traverse the graph.
+
+Decision
+
+Rejected.
+
+--------------------------------------------------------------------------------
+5.6.3 Bellman-Ford Algorithm
+--------------------------------------------------------------------------------
+
+The Bellman-Ford Algorithm computes shortest paths even when negative edge
+weights are present.
+
+Advantages
+
+• Supports negative edge weights.
+
+• Detects negative cycles.
+
+Limitations
+
+• Higher computational complexity than Dijkstra.
+
+• Slower execution.
+
+• Negative edge weights are unnecessary for this project.
+
+Suitability for BorderShield AI
+
+Operational road costs are always positive values.
+
+Therefore, Bellman-Ford provides no practical advantage for the proposed
+routing framework.
+
+Decision
+
+Rejected.
+
+--------------------------------------------------------------------------------
+5.6.4 Floyd-Warshall Algorithm
+--------------------------------------------------------------------------------
+
+The Floyd-Warshall Algorithm computes the shortest paths between every pair of
+nodes within a graph.
+
+Advantages
+
+• Produces all-pairs shortest paths.
+
+• Useful for complete network analysis.
+
+Limitations
+
+• High computational complexity.
+
+• Computes many unnecessary routes.
+
+• Inefficient for individual mission requests.
+
+Suitability for BorderShield AI
+
+Each mission requires routing between only one source and one destination.
+
+Calculating shortest paths between every pair of operational locations would
+consume unnecessary computational resources.
+
+Decision
+
+Rejected.
+
+--------------------------------------------------------------------------------
+5.6.5 A* Algorithm
+--------------------------------------------------------------------------------
+
+The A* Algorithm improves shortest-path computation by introducing heuristics
+to estimate the remaining distance toward the destination.
+
+Advantages
+
+• Faster than Dijkstra on very large graphs.
+
+• Efficient when an accurate heuristic exists.
+
+Limitations
+
+• Requires heuristic design.
+
+• Route quality depends on heuristic accuracy.
+
+• More complex implementation.
+
+Suitability for BorderShield AI
+
+The proposed operational network consists of approximately twenty operational
+locations connected through a manageable number of road segments.
+
+For this network size, the Standard Dijkstra Algorithm provides sufficient
+performance without requiring heuristic optimization.
+
+Decision
+
+Not Selected.
+
+--------------------------------------------------------------------------------
+5.6.6 Standard Dijkstra Algorithm
+--------------------------------------------------------------------------------
+
+The Standard Dijkstra Algorithm computes the shortest path between a source and
+destination within a weighted graph.
+
+Advantages
+
+• Reliable.
+
+• Efficient.
+
+• Widely accepted.
+
+• Computationally stable.
+
+• Easy to validate.
+
+• Suitable for positive edge weights.
+
+Limitations
+
+The Standard Dijkstra Algorithm assumes that every edge already has a numerical
+weight.
+
+Traditionally,
+
+Edge Weight = Distance
+
+The algorithm does not understand:
+
+• Weather
+
+• Terrain
+
+• Road Status
+
+• Visibility
+
+• Mission Priority
+
+• Vehicle Type
+
+• Operational Constraints
+
+Its responsibility is limited to identifying the path having the minimum
+cumulative edge weight.
+
+Suitability for BorderShield AI
+
+The routing capability of Dijkstra is excellent.
+
+However, the edge weights must represent operational conditions instead of
+physical distance alone.
+
+Decision
+
+Selected as the Core Routing Algorithm.
+
+================================================================================
+5.7 Understanding Multi-Criteria Path Planning
+================================================================================
+
+During the literature survey, another important concept known as Multi-Criteria
+Path Planning was studied.
+
+Initially, it appeared to be an alternative shortest-path algorithm.
+
+However, detailed analysis revealed that this assumption is incorrect.
+
+Multi-Criteria Path Planning is not a single routing algorithm.
+
+Instead, it is a decision-making framework that evaluates multiple operational
+criteria before determining the best route.
+
+Different shortest-path algorithms can operate within this framework,
+including:
+
+• Standard Dijkstra Algorithm
+
+• A* Algorithm
+
+• Bellman-Ford Algorithm
+
+• Genetic Algorithms
+
+• Ant Colony Optimization
+
+• Particle Swarm Optimization
+
+Therefore, simply stating that a system uses Multi-Criteria Path Planning is
+academically incomplete because the underlying routing algorithm must still be
+specified.
+
+================================================================================
+5.8 Key Design Observation
+================================================================================
+
+The detailed study of routing algorithms and Multi-Criteria Path Planning led
+to one important observation.
+
+The routing algorithm and the decision-making process are two independent
+components.
+
+The routing algorithm determines how the shortest path is computed.
+
+The decision-making process determines how the cost of every road segment is
+calculated.
+
+Therefore, the routing algorithm itself does not need to understand weather,
+terrain, road conditions, or mission information.
+
+Instead, it only requires meaningful numerical edge weights.
+
+Those edge weights can be generated by a separate decision-making module.
+
+This observation became the foundation of the proposed BorderShield AI routing
+architecture.
+
+================================================================================
+5.9 Final Design Decision
+================================================================================
+
+Based on the comparative analysis, the following architecture was selected.
+
+The Standard Dijkstra Algorithm is used exclusively for route computation.
+
+A separate Multi-Criteria Risk Evaluation Engine evaluates all operational
+datasets and calculates a dynamic operational cost for every road segment.
+
+These operational costs become the edge weights of the weighted graph.
+
+The Standard Dijkstra Algorithm then computes the route having the minimum
+cumulative operational cost.
+
+This hybrid architecture combines intelligent decision-making with an
+efficient, reliable, and well-established routing algorithm.
+
+================================================================================
+5.10 Algorithm Selection Summary
+================================================================================
+
+Algorithm / Approach              Decision
+
+Breadth First Search (BFS)        Rejected
+Reason: Supports only unweighted routing.
+
+Depth First Search (DFS)          Rejected
+Reason: Does not guarantee the optimal path.
+
+Bellman-Ford Algorithm            Rejected
+Reason: Negative edge weights are unnecessary.
+
+Floyd-Warshall Algorithm          Rejected
+Reason: Computes unnecessary all-pairs routes.
+
+A* Algorithm                      Not Selected
+Reason: Additional heuristic complexity is not required.
+
+Standard Dijkstra Algorithm       Selected
+Reason: Reliable, efficient, and ideal for weighted routing.
+
+Multi-Criteria Path Planning      Adopted as Design Strategy
+Reason: Used for operational cost evaluation instead of path computation.
+
+================================================================================
+5.11 Conclusion of Algorithm Selection
+================================================================================
+
+After evaluating several routing algorithms and decision-making approaches, it
+was concluded that no single algorithm independently satisfies all operational
+requirements of BorderShield AI.
+
+The Standard Dijkstra Algorithm provides an efficient shortest-path solution
+but does not consider operational conditions.
+
+Conversely, Multi-Criteria Path Planning enables the evaluation of multiple
+operational parameters but does not itself perform shortest-path computation.
+
+Therefore, BorderShield AI adopts a hybrid routing architecture that combines
+the strengths of both approaches.
+
+The Multi-Criteria Risk Evaluation Engine dynamically computes operational
+costs for each road segment, while the Standard Dijkstra Algorithm identifies
+the route having the minimum cumulative operational cost.
+
+This combination forms the foundation of the BorderShield Dynamic Multi-
+Criteria Routing Algorithm (BDMRA), which serves as the core routing framework
+of the proposed system.
+
+================================================================================
+END OF CHAPTER 5 – PART 2
+Version : 1.0 (Frozen)
+Status  : Approved
+================================================================================
+================================================================================
+                           BorderShield AI
+================================================================================
+
+Chapter 5
+BorderShield Dynamic Multi-Criteria Routing Algorithm (BDMRA)
+
+PART 3
+
+================================================================================
+5.12 Understanding the Routing Architecture
+================================================================================
+
+After selecting the Standard Dijkstra Algorithm as the core routing algorithm
+and Multi-Criteria Path Planning as the decision-making strategy, the next step
+was to determine how both concepts could be integrated into a single routing
+framework.
+
+Initially, it appeared that Dynamic Weighted Dijkstra might represent a new
+routing algorithm. However, a detailed analysis revealed that this assumption
+is technically incorrect.
+
+The routing algorithm itself remains the Standard Dijkstra Shortest Path
+Algorithm. The innovation of the proposed framework lies not in modifying the
+routing algorithm but in dynamically calculating the edge weights before the
+routing process begins.
+
+Therefore, the routing architecture consists of two independent components that
+work sequentially.
+
+1. Multi-Criteria Risk Evaluation Engine (MCREE)
+
+2. Standard Dijkstra Shortest Path Algorithm
+
+The first component performs intelligent operational analysis, while the second
+component performs shortest-path computation.
+
+This separation allows BorderShield AI to remain modular, scalable, and easy to
+maintain.
+
+================================================================================
+5.13 Difference Between Routing Algorithm and Risk Evaluation
+================================================================================
+
+A common misunderstanding is that Dynamic Weighted Dijkstra represents a
+completely different shortest-path algorithm.
+
+Technically, this is not correct.
+
+The Standard Dijkstra Algorithm has remained unchanged for decades and is
+responsible only for computing the shortest path within a weighted graph.
+
+It does not understand operational concepts such as:
+
+• Weather
+
+• Terrain
+
+• Road Conditions
+
+• Mission Priority
+
+• Vehicle Type
+
+• Visibility
+
+• Snowfall
+
+• Road Closures
+
+Instead, the algorithm requires only one input for every road segment.
+
+A numerical edge weight.
+
+Its objective is simply to identify the path whose total edge weight is minimum.
+
+Therefore, the intelligence of BorderShield AI is not embedded inside the
+Dijkstra Algorithm.
+
+Instead, intelligence is introduced before Dijkstra executes by calculating
+meaningful edge weights from multiple operational datasets.
+
+================================================================================
+5.14 Relationship Between Risk Evaluation and Routing
+================================================================================
+
+The routing framework separates the overall process into two independent stages.
+
+Stage One
+
+Operational evaluation of every road segment.
+
+Stage Two
+
+Shortest-path computation using dynamically generated edge weights.
+
+The relationship between both components is illustrated below.
+
+-------------------------------------------------------------------------------
+
+        Multi-Criteria Risk Evaluation Engine
+                     │
+                     ▼
+     Calculates Operational Cost of Every Road
+                     │
+                     ▼
+       Generates Dynamic Edge Weights
+                     │
+                     ▼
+     Standard Dijkstra Shortest Path Algorithm
+                     │
+                     ▼
+      Generates Best Operational Route
+
+-------------------------------------------------------------------------------
+
+This separation ensures that each component performs only one specialized task.
+
+The Risk Evaluation Engine performs intelligent analysis.
+
+The Standard Dijkstra Algorithm performs efficient routing.
+
+================================================================================
+5.15 Formation of the BorderShield Dynamic Multi-Criteria Routing
+      Algorithm (BDMRA)
+================================================================================
+
+Based on the architectural study, the proposed routing framework is formed by
+integrating the Standard Dijkstra Algorithm with the Multi-Criteria Risk
+Evaluation Engine.
+
+The framework can be represented as:
+
+-------------------------------------------------------------------------------
+
+BorderShield Dynamic Multi-Criteria Routing Algorithm (BDMRA)
+
+            =
+Multi-Criteria Risk Evaluation Engine
+
+            +
+Dynamic Edge Weight Generation
+
+            +
+Standard Dijkstra Shortest Path Algorithm
+
+-------------------------------------------------------------------------------
+
+It is important to note that BDMRA is not a newly invented shortest-path
+algorithm.
+
+Instead, it is a hybrid routing framework developed specifically for
+BorderShield AI by combining an established shortest-path algorithm with a
+dynamic operational decision-making mechanism.
+
+================================================================================
+5.16 Why Dynamic Edge Weights Are Required
+================================================================================
+
+Traditional shortest-path systems assign a fixed weight to every road segment.
+
+For example,
+
+Edge Weight = Distance
+
+Such an approach assumes that road conditions remain constant throughout the
+mission.
+
+However, operational environments are highly dynamic.
+
+Road conditions may change because of:
+
+• Weather
+
+• Snowfall
+
+• Terrain Accessibility
+
+• Operational Incidents
+
+• Temporary Road Closures
+
+• Mission Requirements
+
+If the edge weight remains fixed, the routing algorithm cannot adapt to
+changing operational conditions.
+
+Therefore, BorderShield AI replaces fixed edge weights with dynamically
+generated operational costs.
+
+Instead of using only physical distance,
+
+the proposed framework uses
+
+Edge Weight = Dynamic Operational Cost
+
+The operational cost is calculated using multiple operational datasets and
+represents the current suitability of travelling through each road segment.
+
+================================================================================
+5.17 Why the Framework Is Called Dynamic
+================================================================================
+
+The routing framework is described as dynamic because the edge weights
+continuously adapt to changing operational conditions.
+
+Consider a road connecting two operational locations.
+
+Initial Conditions
+
+Weather          : Heavy Snow
+
+Visibility       : Poor
+
+Road Status      : Open
+
+Terrain          : Glacier
+
+The Risk Evaluation Engine computes
+
+Operational Cost = 48
+
+This value becomes the edge weight supplied to the Standard Dijkstra Algorithm.
+
+Later, suppose the weather improves.
+
+Updated Conditions
+
+Weather          : Clear
+
+Visibility       : Good
+
+Road Status      : Open
+
+Terrain          : Glacier
+
+The Risk Evaluation Engine now computes
+
+Operational Cost = 18
+
+The Standard Dijkstra Algorithm itself has not changed.
+
+Only the edge weight has changed.
+
+When the routing algorithm executes again, it automatically evaluates the
+updated graph and may recommend a completely different operational route.
+
+This automatic adaptation to changing operational conditions is the defining
+characteristic of the BorderShield Dynamic Multi-Criteria Routing Algorithm.
+
+================================================================================
+5.18 Overall Working Principle
+================================================================================
+
+The complete routing process follows a sequential workflow.
+
+Mission Request
+
+        │
+
+        ▼
+
+Load Operational Datasets
+
+        │
+
+        ▼
+
+Multi-Criteria Risk Evaluation Engine
+
+        │
+
+        ▼
+
+Operational Cost Calculation
+
+        │
+
+        ▼
+
+Dynamic Edge Weight Assignment
+
+        │
+
+        ▼
+
+Weighted Graph Construction
+
+        │
+
+        ▼
+
+Standard Dijkstra Algorithm
+
+        │
+
+        ▼
+
+Best Operational Route
+
+        │
+
+        ▼
+
+Route Recommendation
+
+        │
+
+        ▼
+
+Distance + ETA + Risk + Recommendation
+
+The workflow allows BorderShield AI to combine intelligent operational
+decision-making with reliable shortest-path computation.
+
+================================================================================
+5.19 Advantages of Separating Decision Making and Routing
+================================================================================
+
+Separating operational analysis from route computation provides several
+important advantages.
+
+• The routing algorithm remains simple and computationally efficient.
+
+• New operational parameters can be added without modifying the routing
+  algorithm.
+
+• Dynamic operational conditions automatically influence route
+  recommendations.
+
+• The framework follows a modular architecture.
+
+• Risk evaluation logic can evolve independently from the routing algorithm.
+
+• Future datasets can easily be integrated.
+
+• The system becomes easier to maintain, test, and upgrade.
+
+• The architecture remains scalable for future enhancements.
+
+================================================================================
+5.20 Technical Interpretation
+================================================================================
+
+The BorderShield Dynamic Multi-Criteria Routing Algorithm should be interpreted
+as a routing framework rather than a newly invented shortest-path algorithm.
+
+The framework combines four major components.
+
+• Multi-Criteria Risk Evaluation
+
+• Dynamic Operational Cost Generation
+
+• Weighted Graph Construction
+
+• Standard Dijkstra Shortest Path Computation
+
+Each component performs a clearly defined responsibility.
+
+Collectively, these components enable intelligent route recommendation under
+dynamic operational conditions while preserving the efficiency and reliability
+of the Standard Dijkstra Algorithm.
+
+================================================================================
+5.21 Official Technical Description
+================================================================================
+
+The BorderShield Dynamic Multi-Criteria Routing Algorithm (BDMRA) is a hybrid
+routing framework that integrates a Multi-Criteria Risk Evaluation Engine with
+the Standard Dijkstra Shortest Path Algorithm.
+
+The Risk Evaluation Engine analyzes operational datasets including Geographic
+Master, Road Master, Terrain Master, Weather Master, Mission Information, and
+future operational updates to calculate a dynamic operational cost for every
+road segment.
+
+These operational costs are assigned as edge weights within a weighted graph.
+
+The Standard Dijkstra Algorithm subsequently processes the dynamically weighted
+graph and determines the route having the minimum cumulative operational cost,
+thereby recommending the safest and most operationally suitable route between
+the selected source and destination.
+
+================================================================================
+END OF CHAPTER 5 – PART 3
+
+Version : 1.0 (Frozen)
+
+Status  : Approved
+
+Routing Framework : BorderShield Dynamic Multi-Criteria Routing Algorithm
+(BDMRA)
+
+Core Routing Algorithm : Standard Dijkstra Shortest Path Algorithm
+
+Decision Engine : Multi-Criteria Risk Evaluation Engine (MCREE)
+
+================================================================================

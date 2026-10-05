@@ -1,0 +1,1036 @@
+=============================================================================
+
+BORDERSHIELD AI
+MASTER INPUT MODULE CONTEXT
+VERSION 2.2 (FINAL FREEZE)
+
+READ THIS COMPLETE DOCUMENT BEFORE ANSWERING.
+
+This document contains the FINAL architecture of the Manual Input Module based
+on the latest Operational Region Map (Version 4.0).
+
+Treat all decisions as FINAL unless I explicitly ask to redesign them.
+
+Do NOT redesign the input module unnecessarily.
+
+=============================================================================
+
+PROJECT NAME
+
+BorderShield AI
+
+AI-Based Border Route Risk Prediction &
+Intelligent Operational Mission Decision Support System
+
+=============================================================================
+
+PROJECT CONTEXT
+
+Initially, the project was designed as a simple route recommendation system.
+
+Officer selected
+
+Source
+↓
+
+Destination
+↓
+
+AI Recommended Route
+
+After designing the complete operational map, the architecture evolved.
+
+Now BorderShield AI is NOT a simple route finder.
+
+It is an
+
+AI Operational Mission Decision Support System
+
+where any operational facility can become the source or destination of a mission.
+
+=============================================================================
+
+PROJECT PHILOSOPHY
+
+The user should enter only the mission information.
+
+The system should automatically perform
+
+• Route Discovery
+• Route Comparison
+• Weather Analysis
+• Terrain Analysis
+• Risk Prediction
+• ETA Calculation
+• Operational Recommendation
+
+The backend should be intelligent.
+
+The user interface should remain simple.
+
+=============================================================================
+
+BIGGEST ARCHITECTURE CHANGE
+
+The operational map is no longer made only of Locations.
+
+The map now consists of five different node types.
+
+1. L = Operational Locations
+2. CP = Checkpoints
+3. RP = Rest Points
+4. HP = Helipads
+5. J = Junctions
+
+This creates a complete operational road network instead of a simple location map.
+
+=============================================================================
+
+OPERATIONAL NODE TYPES
+
+=============================================================================
+
+L — Operational Locations
+
+Major military operational facilities.
+
+Examples
+
+L01 Command HQ
+
+L02 Communication Center
+
+L03 Mission Control Center
+
+L04 Logistics Hub
+
+L05 Fuel Depot
+
+L06 Vehicle Maintenance Camp
+
+L07 Transit Camp Alpha
+
+L08 Supply Camp
+
+L09 Medical Camp
+
+L10 Engineering Camp
+
+L11 Weather Station
+
+L12 Avalanche Monitoring Center
+
+L13 Snow Patrol Camp
+
+L14 Emergency Response Camp
+
+L15 Glacier Operations Camp
+
+L16 Ice Rescue Center
+
+L17 Radar Station
+
+L18 Observation Post Alpha
+
+L19 Observation Post Bravo
+
+L20 Peak Sentinel
+
+These represent permanent operational facilities.
+
+Users CAN select them.
+
+=============================================================================
+
+CP — Checkpoints
+
+Security and operational checkpoints.
+
+Current Checkpoints
+
+CP01 Leh Junction
+
+CP02 Command Junction
+
+CP03 Hunder Junction
+
+CP04 Valley Junction
+
+CP05 Supply Junction
+
+CP06 Glacier Fork
+
+CP07 Snow Confluence
+
+CP08 North Phullu Junction
+
+CP09 Khardung Junction
+
+CP10 Radar Junction
+
+CP11 Panamik Cross
+
+CP12 North Pass Junction
+
+These are operational facilities.
+
+Users CAN select them.
+
+=============================================================================
+
+RP — Rest Points
+
+Operational halt points.
+
+Convoy rest.
+
+Personnel halt.
+
+Emergency waiting area.
+
+Updated Rest Point List
+
+RP01 Indus Bridge Rest
+
+RP02 Nubra Rest Point
+
+RP03 Khardung Rest Point
+
+RP04 Valley Rest Point
+
+RP05 Shyok Rest Point
+
+RP06 Alpine Rest Camp
+
+RP07 Glacier View Rest
+
+Users CAN select them.
+
+=============================================================================
+
+HP — Helipads
+
+Air operational facilities.
+
+HP01 Leh Helipad
+
+HP02 North Phullu Helipad
+
+HP03 Shyok Helipad
+
+HP04 Nubra Helipad
+
+HP05 Panamik Helipad
+
+HP06 Peak Helipad
+
+Users CAN select them.
+
+=============================================================================
+
+J — Junctions (NEW)
+
+The latest map introduces Junction Nodes.
+
+Examples
+
+J01
+
+J02
+
+J03
+
+...
+
+J14
+
+These are NOT operational facilities.
+
+These are road intersections.
+
+Purpose
+
+• Connect multiple roads
+• Improve graph traversal
+• Allow alternative route generation
+• Reduce routing complexity
+• Build an actual road network
+
+Users NEVER select Junctions.
+
+Only the backend uses them.
+
+=============================================================================
+
+VERY IMPORTANT RULE
+
+Source and Destination dropdowns contain ONLY
+
+Locations (L)
+
+Checkpoints (CP)
+
+Rest Points (RP)
+
+Helipads (HP)
+
+Junctions (J)
+
+ARE NOT SHOWN TO USERS.
+
+=============================================================================
+
+WHY JUNCTIONS WERE ADDED
+
+Earlier
+
+Road
+
+↓
+
+Location
+
+↓
+
+Road
+
+↓
+
+Location
+
+Now
+
+Road
+
+↓
+
+Junction
+
+↓
+
+Road
+
+↓
+
+Operational Node
+
+↓
+
+Road
+
+↓
+
+Junction
+
+↓
+
+Road
+
+This is how professional routing systems model road networks.
+
+=============================================================================
+
+MISSION PHILOSOPHY
+
+Any operational node can become
+
+Source
+
+Destination
+
+Examples
+
+Command HQ
+
+↓
+
+Medical Camp
+
+Checkpoint
+
+↓
+
+Rest Point
+
+Helipad
+
+↓
+
+Engineering Camp
+
+Medical Camp
+
+↓
+
+Checkpoint
+
+Peak Sentinel
+
+↓
+
+Observation Post
+
+Supply Camp
+
+↓
+
+Fuel Depot
+
+Rest Point
+
+↓
+
+Checkpoint
+
+Every operational node is valid.
+
+=============================================================================
+
+VERY IMPORTANT
+
+Officer NEVER selects
+
+Intermediate Nodes
+
+Roads
+
+Checkpoints
+
+Rest Stops
+
+Helipads
+
+Bridges
+
+Weather
+
+Terrain
+
+The backend automatically discovers them.
+
+=============================================================================
+
+BACKEND ROUTING EXAMPLE
+
+User selects
+
+Source
+
+CP03
+
+Destination
+
+L11
+
+Backend internally computes
+
+CP03
+
+↓
+
+J06
+
+↓
+
+J07
+
+↓
+
+RP06
+
+↓
+
+J11
+
+↓
+
+CP06
+
+↓
+
+L11
+
+The officer never sees the Junctions.
+
+=============================================================================
+
+SMART RECOMMENDATION EXAMPLE
+
+Mission
+
+CP03
+
+↓
+
+L11
+
+Weather
+
+Clear until RP06
+
+Heavy snowfall after CP06
+
+Recommendation
+
+Proceed to RP06
+
+Monitor weather
+
+Continue only after visibility improves
+
+=============================================================================
+
+SECOND EXAMPLE
+
+Road blocked
+
+Recommendation
+
+Move to HP05
+
+Deploy Utility Helicopter
+
+Continue Mission
+
+=============================================================================
+
+ML ARCHITECTURE
+
+Machine Learning predicts ONLY
+
+Risk Score
+
+Machine Learning DOES NOT decide
+
+Stop at Checkpoint
+
+Use Rest Point
+
+Deploy Helicopter
+
+Wait
+
+Alternative Route
+
+Those recommendations are generated by the Backend Decision Engine.
+
+Reason
+
+Simple Architecture
+
+Easy Implementation
+
+Easy Viva
+
+=============================================================================
+
+FINAL USER INPUTS
+
+VERSION 2.2
+
+=============================================================================
+
+INPUT 1
+
+Source Operational Node
+
+Type
+
+Searchable Dropdown
+
+Contains
+
+Locations
+
+Checkpoints
+
+Rest Points
+
+Helipads
+
+Examples
+
+L01 Command HQ
+
+CP08 North Phullu Junction
+
+RP05 Shyok Rest Point
+
+HP04 Nubra Helipad
+
+Required
+
+YES
+
+=============================================================================
+
+INPUT 2
+
+Destination Operational Node
+
+Type
+
+Searchable Dropdown
+
+Same list as Source
+
+Required
+
+YES
+
+=============================================================================
+
+INPUT 3
+
+Mission Type
+
+Dropdown
+
+Personnel Movement
+
+Border Patrol
+
+Supply Delivery
+
+Medical Evacuation
+
+Engineering Support
+
+Equipment Transport
+
+Reconnaissance
+
+Emergency Response
+
+Search & Rescue
+
+VIP Movement
+
+Routine Inspection
+
+Required
+
+YES
+
+=============================================================================
+
+INPUT 4
+
+Transport Mode
+
+Dropdown
+
+GROUND
+
+Army Truck
+
+Heavy Convoy
+
+Light Military Vehicle
+
+Snow Vehicle
+
+Engineering Vehicle
+
+Fuel Tanker
+
+Ambulance
+
+Motorcycle Patrol
+
+AIR
+
+Utility Helicopter
+
+Heavy Lift Helicopter
+
+Medical Helicopter
+
+Recon Helicopter
+
+PERSONNEL
+
+Foot Patrol
+
+Required
+
+YES
+
+=============================================================================
+
+INPUT 5
+
+Mission Priority
+
+Dropdown
+
+Low
+
+Medium
+
+High
+
+Critical
+
+Emergency
+
+Required
+
+YES
+
+=============================================================================
+
+INPUT 6
+
+Mission Strength
+
+(Dynamic)
+
+Previously called Deployment Strength.
+
+Changes automatically according to transport.
+
+Foot Patrol
+
+2 Personnel
+
+4 Personnel
+
+6 Personnel
+
+10 Personnel
+
+20 Personnel
+
+30 Personnel
+
+50 Personnel
+
+75 Personnel
+
+100 Personnel
+
+Ground Vehicles
+
+1 Vehicle
+
+2 Vehicles
+
+5 Vehicles
+
+10 Vehicles
+
+15 Vehicles
+
+20 Vehicles
+
+Helicopters
+
+1 Helicopter
+
+2 Helicopters
+
+3 Helicopters
+
+Backend automatically interprets whether Mission Strength means
+
+Personnel
+
+Vehicle Count
+
+Helicopter Count
+
+Required
+
+YES
+
+=============================================================================
+
+INPUT 7
+
+Departure Date
+
+Date Picker
+
+Example
+
+23 July 2026
+
+Required
+
+YES
+
+=============================================================================
+
+INPUT 8
+
+Departure Time
+
+Time Picker
+
+Example
+
+08:30 AM
+
+Required
+
+YES
+
+=============================================================================
+
+INPUT 9
+
+Load Type
+
+Dynamic Dropdown
+
+Visible ONLY when applicable.
+
+Shown for
+
+Supply Delivery
+
+Engineering Support
+
+Equipment Transport
+
+Fuel Transport
+
+Hidden for
+
+Personnel Movement
+
+Patrol
+
+Reconnaissance
+
+Medical Evacuation
+
+Examples
+
+Food Supplies
+
+Medical Supplies
+
+Fuel
+
+Engineering Equipment
+
+Communication Equipment
+
+Construction Material
+
+General Cargo
+
+Emergency Relief Material
+
+Ammunition (Prototype)
+
+Mixed Load
+
+Required
+
+Only when applicable
+
+=============================================================================
+
+INPUT 10
+
+Mission Remarks
+
+Optional Text Area
+
+Examples
+
+Carry emergency medicines.
+
+Escort VIP officer.
+
+Avalanche reported yesterday.
+
+This field is NOT used by Machine Learning.
+
+Useful for reports and mission documentation.
+
+=============================================================================
+
+AUTO GENERATED
+
+(Not User Inputs)
+
+Mission ID
+
+Automatically generated.
+
+Example
+
+MSN-2026-0001
+
+=============================================================================
+
+BACKEND AUTOMATICALLY DETERMINES
+
+Best Route
+
+Alternative Routes
+
+Junction Sequence
+
+Intermediate Operational Nodes
+
+Checkpoints
+
+Rest Points
+
+Helipads
+
+Bridges
+
+Weather Zone
+
+Terrain Type
+
+Road Type
+
+Distance
+
+Elevation Profile
+
+ETA
+
+Weather Forecast
+
+Risk Score
+
+Safety Score
+
+Fuel Estimate
+
+Road Closure Probability
+
+Operational Recommendation
+
+These are NEVER entered by the user.
+
+=============================================================================
+
+VALIDATION RULES
+
+Source
+
+≠
+
+Destination
+
+Foot Patrol
+
+Limited Personnel
+
+Vehicle Missions
+
+Vehicle Count Validation
+
+Helicopter Missions
+
+Limited Helicopter Count
+
+Load Type
+
+Appears only for logistics missions
+
+Mission Strength
+
+Changes dynamically according to Transport Mode
+
+=============================================================================
+
+FINAL NODE SELECTION RULE
+
+Users CAN Select
+
+✓ Locations
+
+✓ Checkpoints
+
+✓ Rest Points
+
+✓ Helipads
+
+Users CANNOT Select
+
+✗ Junctions
+
+=============================================================================
+
+FINAL DESIGN PHILOSOPHY
+
+Keep the interface simple.
+
+Keep the backend intelligent.
+
+Officer enters only mission details.
+
+Backend automatically performs
+
+Route Discovery
+
+Graph Traversal
+
+Junction Analysis
+
+Weather Analysis
+
+Terrain Analysis
+
+Risk Prediction
+
+ETA Calculation
+
+Operational Recommendation
+
+without asking the officer for additional information.
+
+=============================================================================
+
+CURRENT STATUS
+
+INPUT MODULE
+
+VERSION 2.2
+
+FINAL FREEZE
+
+No further redesign unless there is a major implementation issue.
+
+Next Phase
+
+Road Network Database
+
+↓
+
+SQLite Database
+
+↓
+
+Dataset Creation
+
+↓
+
+Machine Learning
+
+↓
+
+Backend Development
+
+↓
+
+Frontend Development
+
+↓
+
+System Integration
+
+=============================================================================
+
+END OF MASTER INPUT MODULE CONTEXT
+=============================================================================

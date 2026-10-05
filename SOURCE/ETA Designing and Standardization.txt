@@ -1,0 +1,441 @@
+ETA Designing and Standardization 
+
+ETA Standardization Framework v1.0
+
+It will contain:
+
+A. Base-speed rules
+
+Road average speed
+Terrain safe speed
+Transport mode
+
+B. Road ETA factors
+
+Road Condition
+Surface Type
+
+C. Weather ETA factors
+
+Visibility
+Snowfall
+Rainfall
+Optional Wind Speed
+
+D. Operational delay rules
+
+Checkpoint
+Rest/operational stop
+
+E. Feasibility rules
+
+Road Status
+Vehicle Suitability
+Route accessibility
+
+F. Calculation
+
+Effective Speed
+Segment Travel Time
+Route ETA
+
+G. Validation
+
+Compare calculated ETA with travel_time_min where appropriate.
+
+
+
+
+ETA STANDARDIZATION AND FORMULAS
+
+1. BASE SPEED STANDARDIZATION
+
+1.1 Road Average Speed
+
+Road Master parameter:
+
+V_road = avg_speed_kmh
+
+No separate normalization is required. It is directly used as the road's nominal speed.
+
+Example:
+If avg_speed_kmh = 35 km/h, then:
+V_road = 35 km/h
+
+
+1.2 Terrain Safe Speed
+
+Terrain Master parameter:
+
+V_terrain = avg_safe_speed_kmh
+
+No separate normalization is required. It acts as the terrain-based safe-speed limit.
+
+Example:
+If avg_safe_speed_kmh = 25 km/h, then:
+V_terrain = 25 km/h
+
+
+Base Speed
+
+V_base = min(V_road, V_terrain)
+
+Example:
+If road speed = 35 km/h and terrain safe speed = 25 km/h:
+V_base = min(35, 25) = 25 km/h
+
+Thus, the system uses 25 km/h as the base speed.
+
+
+2. ROAD ETA STANDARDIZATION
+
+2.1 Road Condition - Lookup Table
+
+Road Condition    ETA Factor (F_condition)
+Excellent          1.00
+Good               0.90
+Fair               0.75
+Poor               0.60
+
+Formula:
+V_condition = V_base x F_condition
+
+Example:
+If V_base = 25 km/h and road condition is Fair:
+V_condition = 25 x 0.75 = 18.75 km/h
+
+
+2.2 Surface Type - Lookup Table
+
+Surface Type       ETA Factor (F_surface)
+Asphalt             1.00
+Gravel              0.90
+Compacted Snow      0.75
+Snow/Ice            0.60
+
+Formula:
+V_road-adjusted = V_base x F_condition x F_surface
+
+Example:
+If V_base = 25 km/h, road condition = Fair (0.75), and surface = Gravel (0.90):
+V_road-adjusted = 25 x 0.75 x 0.90
+V_road-adjusted = 16.875 km/h
+
+
+3. WEATHER ETA STANDARDIZATION
+
+3.1 Visibility - Lookup Table
+
+Visibility          ETA Factor (F_visibility)
+Excellent           1.00
+Good                0.95
+Moderate            0.85
+Poor                0.70
+Very Poor           0.50
+
+Formula:
+V_visibility = V_road-adjusted x F_visibility
+
+Example:
+If V_road-adjusted = 16.875 km/h and visibility is Poor:
+V_visibility = 16.875 x 0.70
+V_visibility = 11.81 km/h
+
+
+3.2 Snowfall - Lookup Table
+
+Snowfall            ETA Factor (F_snow)
+0 mm                1.00
+5 mm                0.90
+20 mm               0.75
+50 mm               0.60
+>50 mm              0.40
+
+Formula:
+V_snow = V_visibility x F_snow
+
+Example:
+If V_visibility = 11.81 km/h and snowfall = 20 mm:
+V_snow = 11.81 x 0.75
+V_snow = 8.86 km/h
+
+
+3.3 Rainfall - Lookup Table
+
+Rainfall            ETA Factor (F_rain)
+0 mm                1.00
+1-5 mm              0.95
+6-20 mm             0.85
+21-50 mm            0.70
+>50 mm              0.50
+
+Formula:
+V_rain = V_snow x F_rain
+
+Example:
+If V_snow = 8.86 km/h and rainfall = 5 mm:
+V_rain = 8.86 x 0.95
+V_rain = 8.42 km/h
+
+
+3.4 Wind Speed - Threshold-Based Standardization
+
+Wind speed is treated as an optional ETA modifier.
+
+For:
+W <= 30
+F_wind = 1.00
+
+Example:
+For wind speed of 25 km/h:
+F_wind = 1.00
+No speed reduction is applied.
+
+
+For:
+30 < W < 70
+F_wind = 1 - ((W - 30) / 40 x 0.40)
+
+Example:
+For wind speed W = 50 km/h:
+F_wind = 1 - ((50 - 30) / 40 x 0.40)
+F_wind = 0.80
+
+
+For:
+W >= 70
+F_wind = 0.60
+
+Example:
+For wind speed of 75 km/h:
+F_wind = 0.60
+
+
+Formula:
+V_weather = V_rain x F_wind
+
+Example:
+If V_rain = 8.42 km/h and wind speed = 50 km/h:
+V_weather = 8.42 x 0.80
+V_weather = 6.74 km/h
+
+
+4. COMBINED EFFECTIVE SPEED
+
+The final effective speed for a road segment is:
+
+V_effective =
+V_base x F_condition x F_surface x F_visibility x F_snow x F_rain x F_wind
+
+where:
+V_base = min(V_road, V_terrain)
+
+Example:
+Suppose:
+Base speed = 25 km/h
+Road condition = Fair -> 0.75
+Gravel -> 0.90
+Poor visibility -> 0.70
+Snowfall = 20 mm -> 0.75
+Rainfall = 5 mm -> 0.95
+Wind = 50 km/h -> 0.80
+
+Then:
+V_effective = 25 x 0.75 x 0.90 x 0.70 x 0.75 x 0.95 x 0.80
+V_effective = 6.74 km/h
+
+For prototype implementation, if wind data is unavailable:
+F_wind = 1.00
+
+Similarly, if a dynamic weather parameter is unavailable, its factor is set to:
+F = 1.00
+
+so that missing data does not artificially increase ETA.
+
+
+5. SEGMENT TRAVEL TIME
+
+For each road segment i:
+
+T_i = (D_i / V_effective,i) x 60
+
+where:
+D_i = segment distance in km
+V_effective,i = effective speed in km/h
+T_i = travel time in minutes
+
+Example:
+For a 10 km road segment with effective speed of 20 km/h:
+T_i = (10 / 20) x 60
+T_i = 30 minutes
+
+
+6. OPERATIONAL DELAY STANDARDIZATION
+
+Operational delays are added separately from movement time.
+
+For segment i:
+
+T_segment,i = T_i + T_checkpoint,i + T_rest,i
+
+where:
+T_checkpoint,i = checkpoint delay
+T_rest,i = rest/operational-stop delay
+
+Example:
+If travel time = 30 minutes, checkpoint delay = 5 minutes, and rest delay = 10 minutes:
+T_segment = 30 + 5 + 10
+T_segment = 45 minutes
+
+If no operational delay applies:
+T_checkpoint,i = 0
+T_rest,i = 0
+
+
+7. ROUTE-LEVEL ETA
+
+For a route containing n road segments:
+
+ETA_route =
+SUM from i=1 to n [
+(D_i / V_effective,i) x 60
++ T_checkpoint,i
++ T_rest,i
+]
+
+Example:
+For three segments:
+Segment 1 = 30 min + 5 min delay
+Segment 2 = 25 min + 0 min delay
+Segment 3 = 40 min + 10 min delay
+
+ETA_route = (30 + 5) + (25 + 0) + (40 + 10)
+ETA_route = 110 minutes
+
+
+8. TRAVEL-TIME REFERENCE VALIDATION
+
+If travel_time_min is available in Road Master, it is used as a reference/validation value, not added to the calculated ETA.
+
+Reference travel time:
+T_reference = travel_time_min
+
+Calculated travel time:
+T_calculated = (D_i / V_effective,i) x 60
+
+Example:
+If the database reference is 40 minutes and calculated travel time is 44 minutes:
+T_reference = 40
+T_calculated = 44
+
+The 40 minutes is NOT added to the 44 minutes.
+
+
+Difference:
+Delta T = T_calculated - T_reference
+
+Example:
+Delta T = 44 - 40 = 4 minutes
+
+
+Percentage Difference:
+Error % = (|T_calculated - T_reference| / T_reference) x 100
+
+Example:
+Error % = (|44 - 40| / 40) x 100
+Error % = 10%
+
+
+9. ETA FEASIBILITY RULES
+
+Feasibility is applied BEFORE ETA calculation.
+
+Road Status
+
+RoadStatus = Blocked/Closed
+=> Edge Removed
+
+Example:
+If R025 is marked Blocked, R025 is removed from the routing graph and its ETA is not calculated.
+
+
+RoadStatus = Restricted
+=> Edge Allowed with Operational Constraint
+
+Example:
+If R025 is Restricted, the edge remains available, but the applicable operational restriction is considered before calculating the final route.
+
+
+RoadStatus = Open
+=> Edge Available
+
+Example:
+If R025 is Open, it remains available for ETA calculation.
+
+
+Vehicle Suitability
+
+If the selected transport mode is incompatible with the road/terrain:
+
+Compatibility = False
+=> Edge Infeasible
+
+Example:
+If a route requires a specialized vehicle but the mission is assigned an incompatible vehicle:
+Compatibility = False
+
+Therefore, the edge is not considered for routing.
+
+Otherwise:
+Compatibility = True
+=> ETA Calculation Allowed
+
+
+10. FINAL ETA PROCESSING FORMULA
+
+V_base = min(V_road, V_terrain)
+
+Example:
+V_road = 35
+V_terrain = 25
+V_base = min(35, 25) = 25 km/h
+
+
+V_effective = V_base x PRODUCT(F_j)
+
+where F_j represents the applicable road and weather ETA factors.
+
+Example:
+V_base = 25
+Applicable factors:
+0.75 x 0.90 x 0.70
+
+Therefore:
+V_effective = 25 x 0.75 x 0.90 x 0.70
+V_effective = 11.81 km/h
+
+
+Then:
+T_i = (D_i / V_effective,i) x 60
+
+Example:
+D_i = 10 km
+V_effective = 11.81 km/h
+T_i = (10 / 11.81) x 60
+T_i = 50.8 minutes
+
+
+Finally:
+ETA_route = SUM(T_i) + SUM(T_checkpoint,i) + SUM(T_rest,i)
+
+Example:
+If total segment travel time is 100 minutes, checkpoint delays total 10 minutes, and rest delays total 15 minutes:
+ETA_route = 100 + 10 + 15
+ETA_route = 125 minutes
+
+
+IMPORTANT SEPARATION
+
+ETA does not use ORAM risk scores, AHP weights, MCREE risk scores, or BDMRA risk values as time penalties.
+
+Risk and ETA remain separate modules.

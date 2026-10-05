@@ -1,0 +1,1989 @@
+Yes. Based on what we have **already frozen**, the current risk model uses only **three risk categories**:
+
+WEATHER → Weather Risk
+TERRAIN → Terrain Risk
+ROAD → Road Risk
+
+And then:
+
+Weather Risk
+Terrain Risk
+Road Risk
+        ↓
+   AHP Weights
+        ↓
+Operational Risk
+
+**Historical Risk is removed** from the current model because we do not have a separate historical dataset and we decided not to fabricate accident/closure history.
+
+Also, as frozen earlier:
+
+- Geographic Master → **not a risk factor**
+- Distance → **not a risk factor**
+- Road Status → **not in risk formula; used separately for route selection**
+- CP → ETA/operational information, not risk
+- HP → not risk
+- RP → ETA/operational information, not risk
+- OT → not risk
+- Air Route → not risk
+- Extra dataset columns remain in the database for information/storage, but do not contribute to MCREE.
+
+## Final Risk Parameter Standardization Table
+
+The important point is that **we are not assigning arbitrary 0–100 values yet**. The table below defines *how* each parameter should be standardized. The actual thresholds/mapping values must be validated before freezing.
+
+### A. WEATHER MASTER
+
+| Parameter | Risk Category | Unit / Type | Risk Direction | Standardization Method | Output |
+|---|---|---|---|---|---|
+| Temperature | Weather | °C | Extreme conditions → higher risk | **Piecewise/threshold function** | 0–100 |
+| Snowfall | Weather | mm / category | Higher snowfall → higher risk | **Lookup + threshold mapping** | 0–100 |
+| Visibility | Weather | meters | Lower visibility → higher risk | **Inverse threshold/function** | 0–100 |
+| Wind Speed | Weather | km/h | Higher operationally significant wind → higher risk | **Threshold/function** | 0–100 |
+| Humidity | Weather | % | Context-dependent; only if validated as risk-relevant | **Validated threshold/function** | 0–100 |
+
+### Important point about humidity
+
+I would **not automatically give humidity a risk contribution** just because it exists in the Weather Master.
+
+It should be included in the final Weather Risk calculation **only if we establish a defensible operational relationship**.
+
+So for now:
+
+Humidity → Candidate Risk Parameter → Validation Required
+
+rather than blindly assigning a weight.
+
+---
+
+# B. TERRAIN MASTER
+
+Based on our earlier discussion, only terrain characteristics that **directly affect road traversal** should enter Terrain Risk.
+
+| Parameter | Risk Category | Unit / Type | Risk Direction | Standardization Method | Output |
+|---|---|---|---|---|---|
+| Elevation | Terrain | meters | Operationally difficult elevation → higher risk | **Threshold/function** | 0–100 |
+| Slope | Terrain | degrees / % | Higher slope → higher risk | **Threshold/function** | 0–100 |
+| Terrain Type | Terrain | categorical | More difficult terrain → higher risk | **Lookup table** | 0–100 |
+| Surface / Ground Type | Terrain | categorical | Less stable/difficult surface → higher risk | **Lookup table** | 0–100 |
+| Avalanche / Snow Hazard | Terrain | category/index, if present | Higher hazard → higher risk | **Lookup/threshold** | 0–100 |
+
+### Important
+
+We should **not automatically include every Terrain Master column**.
+
+For example:
+
+terrain_id
+road_id
+from_node
+to_node
+latitude
+longitude
+remarks
+
+are information/database fields.
+
+They do not become risk parameters.
+
+---
+
+# C. ROAD MASTER
+
+The Road Master should contribute only characteristics that describe the **actual traversal difficulty/condition of the road**.
+
+| Parameter | Risk Category | Unit / Type | Risk Direction | Standardization Method | Output |
+|---|---|---|---|---|---|
+| Road Type | Road | categorical | Less suitable road type → higher risk | **Lookup table** | 0–100 |
+| Surface Type | Road | categorical | Poorer surface → higher risk | **Lookup table** | 0–100 |
+| Road Condition | Road | categorical | Poorer condition → higher risk | **Lookup table** | 0–100 |
+| Road Width | Road | meters | Narrower operational width → higher risk | **Threshold/function** | 0–100 |
+| Curvature / Curves | Road | count/index | More difficult curvature → higher risk | **Threshold/function** | 0–100 |
+
+And, as we already decided:
+
+| Road Master field | Treatment |
+|---|---|
+| Road ID | Database/graph only |
+| From Node | Graph only |
+| To Node | Graph only |
+| Distance | **Not risk**; later used for ETA/cost |
+| Road Status | **Not risk**; route-selection constraint |
+| Bidirectional | Graph information |
+| Remarks | Information |
+| Road Name | Information |
+
+---
+
+# 4. What the standardization actually produces
+
+Suppose one road has:
+
+Weather:
+Temperature = X
+Snowfall = Y
+Visibility = Z
+Wind = W
+
+Terrain:
+Elevation = A
+Slope = B
+Terrain Type = C
+
+Road:
+Road Type = D
+Surface Type = E
+Road Condition = F
+Width = G
+Curvature = H
+
+The standardization layer converts them individually:
+
+Temperature
+      ↓
+Temperature Risk = 0–100
+
+Snowfall
+      ↓
+Snowfall Risk = 0–100
+
+Visibility
+      ↓
+Visibility Risk = 0–100
+
+...
+
+Then the category-level aggregation happens.
+
+For example:
+
+Temperature Risk
+Snowfall Risk
+Visibility Risk
+Wind Risk
+        ↓
+   Weather aggregation
+        ↓
+   WEATHER RISK
+
+Similarly:
+
+Elevation Risk
+Slope Risk
+Terrain Type Risk
+Surface/Ground Risk
+        ↓
+   Terrain aggregation
+        ↓
+   TERRAIN RISK
+
+And:
+
+Road Type Risk
+Surface Risk
+Condition Risk
+Width Risk
+Curvature Risk
+        ↓
+    Road aggregation
+        ↓
+      ROAD RISK
+
+---
+
+# 5. Then AHP comes in
+
+This is a **separate stage**.
+
+We don't do:
+
+Raw temperature × AHP weight
+
+Instead:
+
+Raw Temperature
+       ↓
+Temperature Risk 0–100
+       ↓
+Weather aggregation
+       ↓
+Weather Risk
+
+Then:
+
+Weather Risk × Weather AHP Weight
+
+Same for Terrain and Road.
+
+So the architecture is:
+
+              RAW DATA
+                 │
+      ┌──────────┼──────────┐
+      ↓          ↓          ↓
+   Weather     Terrain      Road
+      │          │          │
+      ↓          ↓          ↓
+ Standardize  Standardize Standardize
+      │          │          │
+      ↓          ↓          ↓
+Weather Risk Terrain Risk Road Risk
+      │          │          │
+      └──────────┼──────────┘
+                 ↓
+          Frozen AHP Weights
+                 ↓
+       ┌─────────┼─────────┐
+       ↓         ↓         ↓
+      W×wW      T×wT      R×wR
+       └─────────┼─────────┘
+                 ↓
+        OPERATIONAL RISK
+
+---
+
+# 6. The most important part: we still need to determine the actual mappings
+
+For example, this is **not yet frozen**:
+
+Heavy Snow = 90
+
+That was an earlier illustrative example.
+
+We now need to establish whether:
+
+Heavy Snow → 80
+
+or
+
+Heavy Snow → 90
+
+or some mathematical function is more defensible.
+
+Same for:
+
+Visibility
+Temperature
+Wind
+Elevation
+Slope
+Terrain Type
+Road Type
+Surface
+Road Condition
+Width
+Curvature
+
+We should research/derive these **one parameter at a time**, rather than putting arbitrary numbers into the formula.
+
+---
+
+# 7. Final standardization framework we should work toward
+
+For each parameter, we will produce a finalized specification like:
+
+PARAMETER: Visibility
+
+Source:
+Weather Master / Live Weather
+
+Unit:
+meters
+
+Risk Direction:
+Inverse
+
+Standardization:
+Piecewise threshold function
+
+Minimum Risk Condition:
+TBD after validation
+
+Low Risk Range:
+TBD
+
+Moderate Risk Range:
+TBD
+
+High Risk Range:
+TBD
+
+Critical Risk Range:
+TBD
+
+Maximum Risk:
+100
+
+Missing Value:
+Use defined Weather Master fallback
+
+Justification:
+Lower visibility reduces operational visibility
+and increases traversal difficulty.
+
+This is the level of detail we should use for **every single risk parameter**.
+
+### So the next step is clear:
+
+**We should now research and finalize the actual 0–100 standardization thresholds/mappings for these parameters, one by one.**
+
+That should happen **before we finalize the numerical Risk Formula**, because the formula is only meaningful if the standardized inputs are scientifically defensible.
+
+
+============================================================
+
+
+# Complete Risk Standardization Framework
+
+The purpose of this stage is to take the raw values stored in the Weather Master, Terrain Master, and Road Master and convert only the parameters that actually contribute to operational risk into a common 0–100 risk scale.
+
+The three risk categories remain:
+
+WEATHER → Weather Risk
+TERRAIN → Terrain Risk
+ROAD → Road Risk
+
+Historical Risk is not included.
+
+The system does not fabricate historical accident, closure, or incident information because no separate historical dataset is available.
+
+The Geographic Master is also not a risk dataset. It provides the original geographical coordinates and related geographic information from which the operational network and other datasets are derived.
+
+Distance is important for the system, but it is not itself a risk factor. It will later be used for ETA and route/cost calculations.
+
+Road Status is not part of the risk formula. It is handled separately during route selection.
+
+Checkpoints are used for ETA and operational information.
+
+Helipads are not risk factors.
+
+Rest Points are used for ETA and operational information.
+
+Observation Towers are not risk factors.
+
+Air Routes are not risk factors.
+
+Extra columns in the datasets should not automatically be deleted from the database. They may remain for storage, information, visualization, future functionality, or operational reference. Only the parameters that directly contribute to the risk model are passed into MCREE.
+
+---
+
+# 1. Weather Risk
+
+Weather Risk is calculated from weather parameters that can directly affect road traversal.
+
+The current candidate weather parameters are:
+
+Temperature
+
+Snowfall
+
+Visibility
+
+Wind Speed
+
+Humidity
+
+The important principle is:
+
+A parameter being present in the Weather Master does not automatically mean that it contributes to risk.
+
+Each parameter must have a defensible operational relationship with road traversal.
+
+---
+
+## 1.1 Temperature
+
+Parameter:
+
+Temperature
+
+Unit:
+
+°C
+
+Risk direction:
+
+Extreme conditions → higher risk
+
+Standardization method:
+
+Piecewise/threshold function
+
+Output:
+
+0–100
+
+The temperature value received from the Weather API or Weather Master is converted into a standardized Temperature Risk score.
+
+The exact thresholds are not yet frozen.
+
+They must be researched and validated.
+
+The reason for using a threshold/piecewise approach is that operational risk does not necessarily increase linearly across all temperatures.
+
+For example, a temperature that is comfortable for normal operation may have very low risk, while extremely low temperatures may substantially increase operational difficulty.
+
+Therefore, the model should not simply assume:
+
+Temperature × constant
+
+Instead, temperature should be mapped according to operationally meaningful ranges.
+
+---
+
+## 1.2 Snowfall
+
+Parameter:
+
+Snowfall
+
+Unit:
+
+mm or category, depending on the source
+
+Risk direction:
+
+Higher snowfall → higher risk
+
+Standardization method:
+
+Lookup + threshold mapping
+
+Output:
+
+0–100
+
+Snowfall is one of the most important weather parameters because increasing snowfall can affect:
+
+Road surface
+
+Traction
+
+Visibility
+
+Vehicle movement
+
+Road accessibility
+
+Operational reliability
+
+The raw snowfall value is therefore converted into a standardized Snowfall Risk score.
+
+Example structure:
+
+No/very low snowfall
+↓
+Low Risk
+
+Moderate snowfall
+↓
+Moderate Risk
+
+Heavy snowfall
+↓
+High Risk
+
+Very severe snowfall
+↓
+Critical Risk
+
+However, the actual numerical values must be researched and validated before they are frozen.
+
+An earlier value such as:
+
+Heavy Snow = 90
+
+was only an illustrative example and must not automatically become the final value.
+
+---
+
+## 1.3 Visibility
+
+Parameter:
+
+Visibility
+
+Unit:
+
+meters
+
+Risk direction:
+
+Lower visibility → higher risk
+
+Standardization method:
+
+Inverse threshold/function
+
+Output:
+
+0–100
+
+Visibility has an inverse relationship with risk.
+
+Therefore:
+
+High visibility
+↓
+Lower risk
+
+Low visibility
+↓
+Higher risk
+
+Very poor visibility
+↓
+Very high risk
+
+The standardization function must therefore be designed so that decreasing visibility produces an increasing risk score.
+
+Example conceptual structure:
+
+Good visibility
+↓
+Low Risk
+
+Reduced visibility
+↓
+Moderate Risk
+
+Poor visibility
+↓
+High Risk
+
+Extremely poor visibility
+↓
+Critical Risk
+
+The exact threshold values must be validated.
+
+---
+
+## 1.4 Wind Speed
+
+Parameter:
+
+Wind Speed
+
+Unit:
+
+km/h
+
+Risk direction:
+
+Higher operationally significant wind → higher risk
+
+Standardization method:
+
+Threshold/function
+
+Output:
+
+0–100
+
+Wind speed should not automatically be treated as linearly risky.
+
+The model should identify operationally meaningful wind ranges.
+
+For example:
+
+Low wind
+↓
+Low Risk
+
+Moderate wind
+↓
+Moderate Risk
+
+Strong wind
+↓
+High Risk
+
+Severe wind
+↓
+Critical Risk
+
+The actual threshold values must be validated.
+
+---
+
+## 1.5 Humidity
+
+Parameter:
+
+Humidity
+
+Unit:
+
+%
+
+Risk direction:
+
+Context-dependent
+
+Standardization method:
+
+Validated threshold/function
+
+Output:
+
+0–100
+
+Humidity requires special treatment.
+
+Humidity should not automatically receive a risk contribution merely because it exists in the Weather Master.
+
+The model should first establish a defensible operational relationship between humidity and the specific road-traversal risks being modeled.
+
+Therefore:
+
+Humidity → Candidate Risk Parameter → Validation Required
+
+It should only be included in the final Weather Risk aggregation if the research establishes that it provides meaningful independent risk information.
+
+This prevents unnecessary parameters from making the risk model more complicated without adding real value.
+
+---
+
+# 2. Terrain Risk
+
+Terrain Risk contains only terrain characteristics that directly affect road traversal.
+
+The current candidate terrain parameters are:
+
+Elevation
+
+Slope
+
+Terrain Type
+
+Surface / Ground Type
+
+Avalanche / Snow Hazard, if present
+
+Not every Terrain Master column becomes a risk factor.
+
+For example:
+
+terrain_id
+
+road_id
+
+from_node
+
+to_node
+
+latitude
+
+longitude
+
+remarks
+
+may be useful database or information fields but they do not automatically become risk parameters.
+
+---
+
+## 2.1 Elevation
+
+Parameter:
+
+Elevation
+
+Unit:
+
+meters
+
+Risk direction:
+
+Operationally difficult elevation → higher risk
+
+Standardization method:
+
+Threshold/function
+
+Output:
+
+0–100
+
+Elevation can affect operational conditions such as:
+
+Environmental severity
+
+Vehicle performance
+
+Terrain difficulty
+
+Oxygen availability
+
+Weather exposure
+
+Therefore, elevation is converted into a standardized Elevation Risk score.
+
+The mapping should be based on validated operational thresholds rather than arbitrary numbers.
+
+---
+
+## 2.2 Slope
+
+Parameter:
+
+Slope
+
+Unit:
+
+degrees or percentage
+
+Risk direction:
+
+Higher slope → higher risk
+
+Standardization method:
+
+Threshold/function
+
+Output:
+
+0–100
+
+Slope directly affects:
+
+Vehicle stability
+
+Traction
+
+Climbing difficulty
+
+Descending difficulty
+
+Road traversal
+
+Therefore, increasing slope should generally increase the standardized risk value.
+
+The exact slope thresholds must be researched and validated.
+
+---
+
+## 2.3 Terrain Type
+
+Parameter:
+
+Terrain Type
+
+Unit:
+
+Categorical
+
+Risk direction:
+
+More difficult terrain → higher risk
+
+Standardization method:
+
+Lookup table
+
+Output:
+
+0–100
+
+Terrain types cannot be directly multiplied or added because they are categorical.
+
+Therefore, each relevant terrain category is mapped to an appropriate risk score.
+
+Conceptually:
+
+Easy terrain
+↓
+Low Risk
+
+Moderately difficult terrain
+↓
+Moderate Risk
+
+Difficult terrain
+↓
+High Risk
+
+Extremely difficult terrain
+↓
+Critical Risk
+
+The actual category-to-score mapping must be validated.
+
+---
+
+## 2.4 Surface / Ground Type
+
+Parameter:
+
+Surface / Ground Type
+
+Unit:
+
+Categorical
+
+Risk direction:
+
+Less stable/difficult surface → higher risk
+
+Standardization method:
+
+Lookup table
+
+Output:
+
+0–100
+
+The surface or ground type can influence:
+
+Traction
+
+Vehicle stability
+
+Mobility
+
+Road usability
+
+Therefore, relevant surface categories are converted to 0–100 risk values using a lookup table.
+
+---
+
+## 2.5 Avalanche / Snow Hazard
+
+Parameter:
+
+Avalanche / Snow Hazard
+
+Unit:
+
+Category/index, if present
+
+Risk direction:
+
+Higher hazard → higher risk
+
+Standardization method:
+
+Lookup/threshold
+
+Output:
+
+0–100
+
+If this parameter exists in the Terrain Master and is independently available for the road segment, it can contribute to Terrain Risk.
+
+If it does not exist in the dataset, the model should not fabricate it.
+
+---
+
+# 3. Road Risk
+
+Road Risk contains characteristics that describe the actual traversal difficulty or condition of the road.
+
+The current candidate road parameters are:
+
+Road Type
+
+Surface Type
+
+Road Condition
+
+Road Width
+
+Curvature / Curves
+
+---
+
+## 3.1 Road Type
+
+Parameter:
+
+Road Type
+
+Unit:
+
+Categorical
+
+Risk direction:
+
+Less suitable road type → higher risk
+
+Standardization method:
+
+Lookup table
+
+Output:
+
+0–100
+
+Different road types can have different operational characteristics.
+
+Therefore, road type is converted into a standardized risk score using a validated lookup table.
+
+---
+
+## 3.2 Surface Type
+
+Parameter:
+
+Surface Type
+
+Unit:
+
+Categorical
+
+Risk direction:
+
+Poorer surface → higher risk
+
+Standardization method:
+
+Lookup table
+
+Output:
+
+0–100
+
+Surface type can affect:
+
+Traction
+
+Vehicle stability
+
+Travel difficulty
+
+Therefore, different surface categories are mapped to appropriate risk values.
+
+---
+
+## 3.3 Road Condition
+
+Parameter:
+
+Road Condition
+
+Unit:
+
+Categorical
+
+Risk direction:
+
+Poorer condition → higher risk
+
+Standardization method:
+
+Lookup table
+
+Output:
+
+0–100
+
+Road Condition should represent the actual condition of the road rather than temporary availability.
+
+For example, road quality/condition may describe:
+
+Excellent
+
+Good
+
+Fair
+
+Poor
+
+Very Poor
+
+These categories can then be standardized into risk values.
+
+Road Condition must not be confused with Road Status.
+
+Road Condition:
+
+Intrinsic/physical traversal condition
+
+Road Status:
+
+Current operational availability
+
+Therefore:
+
+Road Condition → Risk
+
+Road Status → Route Selection Constraint
+
+---
+
+## 3.4 Road Width
+
+Parameter:
+
+Road Width
+
+Unit:
+
+meters
+
+Risk direction:
+
+Narrower operational width → higher risk
+
+Standardization method:
+
+Threshold/function
+
+Output:
+
+0–100
+
+Narrow roads can create greater operational difficulty, particularly for larger vehicles.
+
+Therefore, width can be standardized using operationally meaningful thresholds.
+
+The actual values must be validated.
+
+---
+
+## 3.5 Curvature / Curves
+
+Parameter:
+
+Curvature / Curves
+
+Unit:
+
+Count/index
+
+Risk direction:
+
+More difficult curvature → higher risk
+
+Standardization method:
+
+Threshold/function
+
+Output:
+
+0–100
+
+Greater curvature can increase:
+
+Driving difficulty
+
+Vehicle maneuvering difficulty
+
+Speed limitations
+
+Operational complexity
+
+Therefore, curvature can be converted into a standardized risk score.
+
+The exact relationship should be validated using an appropriate definition of curvature.
+
+A simple raw count of curves should only be used if it represents the actual operational characteristic sufficiently well.
+
+---
+
+# 4. Database Fields That Do Not Become Risk Parameters
+
+The database can contain many fields that are essential to the overall system but are not inputs to the risk calculation.
+
+For Road Master:
+
+Road ID → Database/graph only
+
+From Node → Graph only
+
+To Node → Graph only
+
+Distance → Not risk; later used for ETA/cost
+
+Road Status → Not risk; route-selection constraint
+
+Bidirectional → Graph information
+
+Remarks → Information
+
+Road Name → Information
+
+For Terrain Master:
+
+Terrain ID → Database/information
+
+Road ID → Relationship/reference
+
+From Node → Graph/reference
+
+To Node → Graph/reference
+
+Latitude → Geographic information
+
+Longitude → Geographic information
+
+Remarks → Information
+
+For Geographic Master:
+
+Coordinates and geographic information remain the authoritative geographic source.
+
+They are not directly treated as risk parameters.
+
+For CP:
+
+Checkpoint information is used for ETA and operational information.
+
+For HP:
+
+Helipad information is stored for operational information.
+
+For RP:
+
+Rest Point information is used for ETA and operational information.
+
+For OT:
+
+Observation Tower information is stored for operational information.
+
+For Air Route:
+
+Air route information is not used in the road risk formula.
+
+The principle is:
+
+One physical characteristic → one authoritative source → one contribution to risk.
+
+A field should not be duplicated across datasets and then independently used in the risk calculation unless there is a clearly different meaning.
+
+---
+
+# 5. What the Standardization Layer Actually Does
+
+Suppose one road has:
+
+Weather:
+
+Temperature = X
+
+Snowfall = Y
+
+Visibility = Z
+
+Wind = W
+
+Terrain:
+
+Elevation = A
+
+Slope = B
+
+Terrain Type = C
+
+Road:
+
+Road Type = D
+
+Surface Type = E
+
+Road Condition = F
+
+Width = G
+
+Curvature = H
+
+The standardization layer converts the raw values individually.
+
+Temperature
+      ↓
+Temperature Risk = 0–100
+
+Snowfall
+      ↓
+Snowfall Risk = 0–100
+
+Visibility
+      ↓
+Visibility Risk = 0–100
+
+Wind
+      ↓
+Wind Risk = 0–100
+
+Elevation
+      ↓
+Elevation Risk = 0–100
+
+Slope
+      ↓
+Slope Risk = 0–100
+
+Terrain Type
+      ↓
+Terrain Type Risk = 0–100
+
+Road Type
+      ↓
+Road Type Risk = 0–100
+
+Surface Type
+      ↓
+Surface Risk = 0–100
+
+Road Condition
+      ↓
+Condition Risk = 0–100
+
+Width
+      ↓
+Width Risk = 0–100
+
+Curvature
+      ↓
+Curvature Risk = 0–100
+
+This creates a common risk scale.
+
+---
+
+# 6. Category-Level Risk Aggregation
+
+After individual parameters have been standardized, they are aggregated into category-level risks.
+
+Weather:
+
+Temperature Risk
+Snowfall Risk
+Visibility Risk
+Wind Risk
+Humidity Risk, if validated
+        ↓
+Weather aggregation
+        ↓
+WEATHER RISK
+
+Terrain:
+
+Elevation Risk
+Slope Risk
+Terrain Type Risk
+Surface/Ground Risk
+Avalanche/Snow Hazard Risk, if available and validated
+        ↓
+Terrain aggregation
+        ↓
+TERRAIN RISK
+
+Road:
+
+Road Type Risk
+Surface Risk
+Condition Risk
+Width Risk
+Curvature Risk
+        ↓
+Road aggregation
+        ↓
+ROAD RISK
+
+This means the system has two levels:
+
+Parameter-level standardization
+
+↓
+
+Category-level risk aggregation
+
+The category risks are then passed to the AHP-weighted operational risk calculation.
+
+---
+
+# 7. AHP Contribution
+
+AHP is a separate stage from risk standardization.
+
+We do not do:
+
+Raw temperature × AHP weight
+
+Instead:
+
+Raw Temperature
+       ↓
+Temperature Risk 0–100
+       ↓
+Weather aggregation
+       ↓
+Weather Risk
+
+Then:
+
+Weather Risk × Weather AHP Weight
+
+The same principle applies to Terrain and Road.
+
+Therefore:
+
+RAW DATA
+                 │
+      ┌──────────┼──────────┐
+      ↓          ↓          ↓
+   Weather     Terrain      Road
+      │          │          │
+      ↓          ↓          ↓
+ Standardize  Standardize Standardize
+      │          │          │
+      ↓          ↓          ↓
+Weather Risk Terrain Risk Road Risk
+      │          │          │
+      └──────────┼──────────┘
+                 ↓
+          Frozen AHP Weights
+                 ↓
+       ┌─────────┼─────────┐
+       ↓         ↓         ↓
+      W×wW      T×wT      R×wR
+       └─────────┼─────────┘
+                 ↓
+        OPERATIONAL RISK
+
+AHP therefore does not standardize temperature, snowfall, slope, road width, or any other raw parameter.
+
+AHP determines the relative importance of the three major risk categories:
+
+Weather
+
+Terrain
+
+Road
+
+The standardized category risks are multiplied by the corresponding frozen AHP weights.
+
+The weights are determined during the research phase and are then frozen after consistency validation.
+
+AHP is not executed again for every mission.
+
+---
+
+# 8. Why We Need Standardization Before AHP
+
+The raw parameters have completely different units.
+
+Temperature:
+
+°C
+
+Visibility:
+
+meters
+
+Wind:
+
+km/h
+
+Elevation:
+
+meters
+
+Slope:
+
+degrees
+
+Road Width:
+
+meters
+
+Terrain Type:
+
+categorical
+
+Road Type:
+
+categorical
+
+Road Condition:
+
+categorical
+
+These values cannot be directly combined.
+
+For example:
+
+-10°C + 350 meters + 35 km/h
+
+does not produce a meaningful risk score.
+
+Therefore, every relevant parameter must first be converted to:
+
+0–100 Risk Score
+
+Only after this standardization can the parameters be aggregated into Weather Risk, Terrain Risk, and Road Risk.
+
+Then AHP is applied at the category level.
+
+---
+
+# 9. The Actual Mappings Are Not Yet Frozen
+
+This is one of the most important points.
+
+Values such as:
+
+Heavy Snow = 90
+
+Visibility = 25
+
+Wind = 10
+
+etc.
+
+that appeared in earlier examples were illustrative examples.
+
+They should not automatically become the final values.
+
+We now need to determine scientifically defensible mappings for:
+
+Temperature
+
+Snowfall
+
+Visibility
+
+Wind
+
+Humidity, if validated
+
+Elevation
+
+Slope
+
+Terrain Type
+
+Surface/Ground Type
+
+Avalanche/Snow Hazard, if present
+
+Road Type
+
+Surface Type
+
+Road Condition
+
+Road Width
+
+Curvature
+
+The objective is not to make the formula complicated.
+
+The objective is to make every number meaningful and defensible.
+
+---
+
+# 10. Standardization Methods
+
+There are several appropriate methods depending on the type of parameter.
+
+## Continuous Parameters
+
+Examples:
+
+Temperature
+
+Visibility
+
+Wind Speed
+
+Elevation
+
+Slope
+
+Road Width
+
+Curvature
+
+These can use:
+
+Threshold functions
+
+Piecewise functions
+
+Validated mathematical functions
+
+The choice depends on the physical relationship between the parameter and operational risk.
+
+---
+
+## Categorical Parameters
+
+Examples:
+
+Snowfall category
+
+Terrain Type
+
+Surface Type
+
+Road Type
+
+Road Condition
+
+Avalanche/Snow Hazard category
+
+These can use:
+
+Lookup tables
+
+Each category receives a validated 0–100 risk value.
+
+---
+
+# 11. Direction of Risk
+
+Every parameter must also have a defined risk direction.
+
+Examples:
+
+Higher snowfall → Higher risk
+
+Lower visibility → Higher risk
+
+Higher wind → Higher risk
+
+Higher slope → Higher risk
+
+Narrower road → Higher risk
+
+Poorer road condition → Higher risk
+
+More difficult terrain → Higher risk
+
+This direction must be explicitly defined before implementing the standardization function.
+
+---
+
+# 12. Parameter Specification Template
+
+For every parameter, we should create a finalized specification in the following format:
+
+PARAMETER: Visibility
+
+Source:
+
+Weather Master / Live Weather
+
+Unit:
+
+meters
+
+Risk Direction:
+
+Inverse
+
+Standardization:
+
+Piecewise threshold function
+
+Minimum Risk Condition:
+
+TBD after validation
+
+Low Risk Range:
+
+TBD
+
+Moderate Risk Range:
+
+TBD
+
+High Risk Range:
+
+TBD
+
+Critical Risk Range:
+
+TBD
+
+Maximum Risk:
+
+100
+
+Missing Value:
+
+Use defined Weather Master fallback
+
+Justification:
+
+Lower visibility reduces operational visibility
+and increases traversal difficulty.
+
+This same structure should be used for every risk parameter.
+
+---
+
+# 13. Missing Weather Data
+
+The Weather Master has an important role in the system.
+
+The system may obtain weather information from:
+
+Live Weather API
+
+or
+
+Weather Master historical/average/default weather information.
+
+If live weather data is unavailable for a particular road/region/time, the system should use the corresponding available weather information stored in the Weather Master according to the project's defined fallback strategy.
+
+Therefore:
+
+Live Weather Available
+        ↓
+Use current weather
+
+Live Weather Unavailable
+        ↓
+Use available Weather Master fallback data
+
+        ↓
+Standardization
+        ↓
+Weather Risk
+
+This avoids leaving the risk calculation without weather inputs when the live API is temporarily unavailable.
+
+The exact fallback priority should be defined during implementation.
+
+---
+
+# 14. Overall Risk Processing Architecture
+
+The complete process is:
+
+RAW DATA
+        │
+        ├──────── Weather Master
+        │
+        ├──────── Terrain Master
+        │
+        └──────── Road Master
+                 │
+                 ▼
+       Select Risk Parameters
+                 │
+                 ▼
+        Validate Raw Values
+                 │
+                 ▼
+      Parameter Standardization
+                 │
+                 ▼
+       Individual Risk Scores
+                 │
+        ┌────────┼────────┐
+        ▼        ▼        ▼
+     Weather  Terrain    Road
+        │        │        │
+        ▼        ▼        ▼
+    Category  Category  Category
+      Risk      Risk      Risk
+        │        │        │
+        └────────┼────────┘
+                 ▼
+          Frozen AHP Weights
+                 │
+                 ▼
+     Operational Risk Aggregation
+                 │
+                 ▼
+       OPERATIONAL RISK 0–100
+                 │
+                 ▼
+        Operational Cost
+                 │
+                 ▼
+       Dynamic Edge Weight
+                 │
+                 ▼
+       Route Selection Algorithm
+
+Road Status is processed separately:
+
+Road Status
+    │
+    ├── Open
+    │     ↓
+    │  Normal availability
+    │
+    ├── Restricted
+    │     ↓
+    │  Apply route-selection penalty/constraint
+    │
+    └── Blocked
+          ↓
+      Remove edge
+
+Road Status does not become part of the AHP risk formula.
+
+---
+
+# 15. Relationship With MCREE
+
+MCREE means:
+
+Multi-Criteria Risk Evaluation Engine.
+
+Its role is to process the relevant risk information from the datasets.
+
+Conceptually:
+
+MCREE
+
+↓
+
+Collect relevant raw parameters
+
+↓
+
+Standardize individual parameters to 0–100
+
+↓
+
+Aggregate parameters into:
+
+Weather Risk
+
+Terrain Risk
+
+Road Risk
+
+↓
+
+Apply frozen AHP weights
+
+↓
+
+Calculate Operational Risk
+
+↓
+
+Provide Operational Risk to the routing system
+
+Therefore, MCREE is the risk evaluation layer.
+
+AHP is the weighting methodology inside the risk evaluation process.
+
+The standardization functions are the preprocessing layer.
+
+The routing algorithm uses the resulting operational cost/edge weight.
+
+---
+
+# 16. Relationship Between Standardization, AHP, and Routing
+
+These are three different responsibilities.
+
+Standardization answers:
+
+"How risky is this individual parameter on a common 0–100 scale?"
+
+AHP answers:
+
+"How important is Weather compared with Terrain and Road?"
+
+Operational Risk answers:
+
+"What is the combined risk of this road segment?"
+
+Routing answers:
+
+"Among the connected roads, which route has the best total operational cost according to the current conditions?"
+
+Therefore:
+
+Raw Data
+↓
+Standardization
+↓
+Category Risks
+↓
+AHP
+↓
+Operational Risk
+↓
+Operational Cost
+↓
+Dynamic Edge Weight
+↓
+Routing
+
+---
+
+# 17. What We Should Not Do
+
+We should not:
+
+- Assign arbitrary risk numbers without justification.
+- Include every database column in the risk formula.
+- Treat coordinates as risk.
+- Treat distance as risk.
+- Treat Road Status as a risk factor.
+- Create fake accident or closure history.
+- Include historical risk when there is no actual historical dataset.
+- Give every weather parameter a risk contribution automatically.
+- Give every terrain column a risk contribution automatically.
+- Give every road column a risk contribution automatically.
+- Apply AHP directly to raw values.
+- Recalculate AHP weights during every mission.
+- Treat illustrative values as final research values.
+
+---
+
+# 18. Final Current Risk Model
+
+The current model is:
+
+WEATHER
+
+↓
+
+Temperature
+
+Snowfall
+
+Visibility
+
+Wind Speed
+
+Humidity, only if validated
+
+↓
+
+Weather Risk
+
+
+TERRAIN
+
+↓
+
+Elevation
+
+Slope
+
+Terrain Type
+
+Surface/Ground Type
+
+Avalanche/Snow Hazard, if available and validated
+
+↓
+
+Terrain Risk
+
+
+ROAD
+
+↓
+
+Road Type
+
+Surface Type
+
+Road Condition
+
+Road Width
+
+Curvature
+
+↓
+
+Road Risk
+
+
+Then:
+
+Weather Risk
+Terrain Risk
+Road Risk
+
+↓
+
+Frozen AHP Weights
+
+↓
+
+Operational Risk
+
+↓
+
+Operational Cost
+
+↓
+
+Dynamic Edge Weight
+
+↓
+
+Routing Algorithm
+
+This is the current structure we should work toward.
+
+---
+
+# 19. Next Research Step
+
+The next step is **not to randomly assign values**.
+
+We should now research and finalize the actual 0–100 standardization thresholds/mappings for each parameter, one by one.
+
+The recommended order is:
+
+1. Temperature
+2. Snowfall
+3. Visibility
+4. Wind Speed
+5. Humidity validation
+6. Elevation
+7. Slope
+8. Terrain Type
+9. Surface/Ground Type
+10. Avalanche/Snow Hazard, if available
+11. Road Type
+12. Surface Type
+13. Road Condition
+14. Road Width
+15. Curvature
+
+For every parameter, we should determine:
+
+Parameter
+
+↓
+
+Raw unit
+
+↓
+
+Risk direction
+
+↓
+
+Standardization method
+
+↓
+
+Thresholds / lookup values
+
+↓
+
+0–100 risk mapping
+
+↓
+
+Justification
+
+↓
+
+Missing-data handling
+
+↓
+
+Validation
+
+Only after these mappings are properly established should the numerical operational risk formula be considered finalized.
+
+The goal is a risk model in which **every number has a reason**, every parameter has a defined meaning, every dataset has a clear role, and no unnecessary information is included merely because it exists in the database.

@@ -1,0 +1,552 @@
+================================================================================
+                           BorderShield AI
+================================================================================
+
+Chapter 6
+
+Multi-Criteria Risk Evaluation Engine (MCREE)
+
+================================================================================
+6.1 Introduction
+================================================================================
+
+The BorderShield Dynamic Multi-Criteria Routing Algorithm (BDMRA) relies on the
+Standard Dijkstra Shortest Path Algorithm to compute the optimal route between
+the selected source and destination. However, before the routing process can
+begin, every road segment within the operational road network must be assigned
+an appropriate edge weight.
+
+Traditional routing systems generally use physical distance or travel time as
+the edge weight. Although this approach is suitable for conventional navigation
+applications, it does not accurately represent the operational suitability of a
+road under dynamic environmental conditions.
+
+To overcome this limitation, BorderShield AI introduces a Multi-Criteria Risk
+Evaluation Engine (MCREE).
+
+The purpose of this engine is to evaluate every road segment using multiple
+operational datasets and convert the collected information into a single
+Operational Cost.
+
+This Operational Cost becomes the dynamic edge weight supplied to the Standard
+Dijkstra Algorithm.
+
+Therefore, the Multi-Criteria Risk Evaluation Engine acts as the intelligence
+layer of the BorderShield AI routing framework.
+
+================================================================================
+6.2 Purpose of the Multi-Criteria Risk Evaluation Engine
+================================================================================
+
+The primary purpose of the Multi-Criteria Risk Evaluation Engine is to evaluate
+the operational suitability of every road segment before route computation
+begins.
+
+Unlike conventional navigation systems that primarily consider distance or
+travel time, the proposed engine evaluates several operational parameters that
+directly influence mission safety and route reliability.
+
+The calculated Operational Cost represents the overall difficulty and risk
+associated with travelling through a particular road segment.
+
+Consequently, the routing framework recommends routes that are operationally
+safer instead of simply recommending the geographically shortest route.
+
+The objectives of the engine include:
+
+• Evaluate every road using multiple operational datasets.
+
+• Consider environmental and operational conditions simultaneously.
+
+• Generate a single Operational Cost for every road segment.
+
+• Produce dynamic edge weights for graph construction.
+
+• Support intelligent route recommendation.
+
+• Allow future expansion through additional operational datasets.
+
+================================================================================
+6.3 Why Risk Evaluation Is Required
+================================================================================
+
+Traditional routing systems generally assume
+
+Edge Weight = Distance
+
+This assumption is appropriate when road conditions remain relatively stable.
+
+However, operational environments are highly dynamic.
+
+For example,
+
+Road A
+
+Distance : 10 km
+
+Weather : Heavy Snow
+
+Visibility : Poor
+
+Terrain : Glacier
+
+Road Status : Open
+
+Road B
+
+Distance : 15 km
+
+Weather : Clear
+
+Visibility : Good
+
+Terrain : Asphalt
+
+Road Status : Open
+
+Although Road A is geographically shorter, travelling through it may be more
+difficult and operationally risky than travelling through Road B.
+
+Therefore, physical distance alone cannot represent the actual suitability of a
+road.
+
+To solve this limitation, BorderShield AI replaces physical distance with a
+dynamically calculated Operational Cost obtained by evaluating multiple
+operational parameters.
+
+================================================================================
+6.4 Multi-Criteria Evaluation Concept
+================================================================================
+
+The Multi-Criteria Risk Evaluation Engine follows the principle that the
+operational suitability of a road depends on the combined influence of several
+parameters rather than any individual parameter.
+
+Instead of making routing decisions using only one factor, the engine evaluates
+all available operational information before assigning an Operational Cost.
+
+The engine therefore provides a comprehensive assessment of each road segment.
+
+The generated Operational Cost reflects the overall operational suitability of
+travelling through that road under the current conditions.
+
+================================================================================
+6.5 Datasets Used by the Risk Evaluation Engine
+================================================================================
+
+The Multi-Criteria Risk Evaluation Engine collects information from several
+master datasets.
+
+--------------------------------------------------------------------------
+1. Geographic Master
+--------------------------------------------------------------------------
+
+Purpose
+
+Stores geographical information for every operational location.
+
+Information Used
+
+• Node ID
+
+• Coordinates
+
+• Operational Zone
+
+Contribution
+
+Provides geographical identity and supports graph construction.
+
+--------------------------------------------------------------------------
+2. Road Master
+--------------------------------------------------------------------------
+
+Purpose
+
+Defines the road network.
+
+Information Used
+
+• Road ID
+
+• Start Node
+
+• End Node
+
+• Distance
+
+• Road Type
+
+• Road Status
+
+Contribution
+
+Provides the structural connectivity of the operational road network.
+
+--------------------------------------------------------------------------
+3. Terrain Master
+--------------------------------------------------------------------------
+
+Purpose
+
+Stores terrain-related characteristics.
+
+Information Used
+
+• Terrain Type
+
+• Surface Type
+
+• Gradient
+
+• Elevation
+
+Contribution
+
+Determines terrain difficulty for every road segment.
+
+--------------------------------------------------------------------------
+4. Weather Master
+--------------------------------------------------------------------------
+
+Purpose
+
+Provides environmental information.
+
+Information Used
+
+• Temperature
+
+• Snowfall
+
+• Visibility
+
+• Wind Speed
+
+• Weather Condition
+
+Contribution
+
+Represents environmental conditions affecting operational movement.
+
+--------------------------------------------------------------------------
+5. Mission Information
+--------------------------------------------------------------------------
+
+Purpose
+
+Allows routing decisions to adapt according to mission requirements.
+
+Information Used
+
+• Mission Type
+
+• Mission Priority
+
+• Vehicle Type
+
+• Cargo Category
+
+• Emergency Level
+
+Contribution
+
+Ensures routing recommendations remain aligned with mission objectives.
+
+--------------------------------------------------------------------------
+6. Future Operational Updates
+--------------------------------------------------------------------------
+
+Purpose
+
+Supports continuous modification of operational conditions.
+
+Possible Information
+
+• Temporary Road Closure
+
+• Accident Reports
+
+• Maintenance Activities
+
+• Security Alerts
+
+• Operational Restrictions
+
+Contribution
+
+Allows dynamic adaptation of the routing framework whenever new operational
+information becomes available.
+
+================================================================================
+6.6 Parameters Considered During Risk Evaluation
+================================================================================
+
+The engine evaluates every road segment using multiple categories of
+operational parameters.
+
+Road Parameters
+
+• Distance
+
+• Road Type
+
+• Road Status
+
+Terrain Parameters
+
+• Terrain Type
+
+• Surface Condition
+
+• Gradient
+
+• Elevation
+
+Weather Parameters
+
+• Temperature
+
+• Snowfall
+
+• Visibility
+
+• Wind Speed
+
+• Weather Condition
+
+Mission Parameters
+
+• Mission Priority
+
+• Vehicle Type
+
+• Cargo Category
+
+• Emergency Level
+
+Operational Parameters
+
+• Temporary Closure
+
+• Restricted Access
+
+• Operational Alerts
+
+All parameters collectively influence the Operational Cost assigned to each
+road segment.
+
+================================================================================
+6.7 Working Principle of the Multi-Criteria Risk Evaluation Engine
+================================================================================
+
+The engine evaluates one road segment at a time.
+
+The complete evaluation process consists of the following steps.
+
+Step 1
+
+Identify the road segment.
+
+Example
+
+Road R023
+
+L05 → L06
+
+--------------------------------------------------------------------------
+
+Step 2
+
+Collect information from all associated datasets.
+
+Example
+
+Road Master
+
+Distance = 12 km
+
+Road Status = Open
+
+Terrain Master
+
+Terrain = Glacier
+
+Surface = Ice
+
+Weather Master
+
+Snowfall = Heavy
+
+Visibility = Poor
+
+Mission Information
+
+Mission Priority = High
+
+Vehicle Type = Supply Vehicle
+
+--------------------------------------------------------------------------
+
+Step 3
+
+Evaluate every operational parameter.
+
+Each parameter contributes to the overall operational suitability of the road.
+
+--------------------------------------------------------------------------
+
+Step 4
+
+Generate a single Operational Cost.
+
+Example
+
+Road R023
+
+↓
+
+Operational Cost = 48
+
+--------------------------------------------------------------------------
+
+Step 5
+
+Assign the Operational Cost as the edge weight of the road.
+
+The road is now ready for shortest-path computation.
+
+================================================================================
+6.8 Output of the Risk Evaluation Engine
+================================================================================
+
+For every road segment, the engine produces the following outputs.
+
+• Operational Cost
+
+• Dynamic Edge Weight
+
+• Risk Category
+
+• Updated Road Status
+
+These outputs are transferred directly to the BorderShield Dynamic
+Multi-Criteria Routing Algorithm (BDMRA).
+
+================================================================================
+6.9 Interaction with the BorderShield Dynamic Multi-Criteria Routing Algorithm
+================================================================================
+
+The Multi-Criteria Risk Evaluation Engine does not determine the route.
+
+Its responsibility ends after generating the Operational Cost for every road
+segment.
+
+The Standard Dijkstra Algorithm subsequently receives the dynamically weighted
+graph and computes the optimal operational route.
+
+The complete interaction is illustrated below.
+
+Road Information
+
+        │
+
+Terrain Information
+
+        │
+
+Weather Information
+
+        │
+
+Mission Information
+
+        │
+
+Operational Updates
+
+        │
+
+        ▼
+
+Multi-Criteria Risk Evaluation Engine
+
+        │
+
+        ▼
+
+Operational Cost Generation
+
+        │
+
+        ▼
+
+Dynamic Edge Weight Assignment
+
+        │
+
+        ▼
+
+BorderShield Dynamic Multi-Criteria Routing Algorithm
+
+        │
+
+        ▼
+
+Optimal Route Recommendation
+
+================================================================================
+6.10 Advantages of the Multi-Criteria Risk Evaluation Engine
+================================================================================
+
+The proposed engine provides several important advantages.
+
+• Considers multiple operational parameters simultaneously.
+
+• Produces realistic Operational Costs.
+
+• Supports dynamic routing.
+
+• Automatically adapts to changing operational conditions.
+
+• Modular architecture.
+
+• Independent of the routing algorithm.
+
+• Easy integration of future datasets.
+
+• Improves operational safety.
+
+• Enhances intelligent decision-making.
+
+================================================================================
+6.11 Conclusion
+================================================================================
+
+The Multi-Criteria Risk Evaluation Engine represents the intelligence layer of
+BorderShield AI.
+
+Instead of modifying the Standard Dijkstra Algorithm, the proposed framework
+improves routing quality by generating dynamic Operational Costs from multiple
+operational datasets.
+
+This separation between operational decision-making and route computation
+creates a modular, scalable, and efficient routing framework capable of
+adapting to continuously changing operational environments.
+
+The generated Operational Costs form the foundation upon which the
+BorderShield Dynamic Multi-Criteria Routing Algorithm computes the safest and
+most operationally suitable route between the selected source and destination.
+
+================================================================================
+END OF CHAPTER 6
+
+Version : 1.0 (Frozen)
+
+Status : Approved
+
+Module Name : Multi-Criteria Risk Evaluation Engine (MCREE)
+
+Used By : BorderShield Dynamic Multi-Criteria Routing Algorithm (BDMRA)
+
+================================================================================

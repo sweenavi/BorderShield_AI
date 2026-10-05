@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; padding: 0; background: #333; }
+    img { cursor: crosshair; }
+    #coord { position: fixed; top: 10px; left: 10px; background: white; padding: 10px; font-family: monospace; font-size: 16px; border: 2px solid black; }
+  </style>
+</head>
+<body>
+  <div id="coord">Click on L01, L15, L20</div>
+  <img id="mapImg" src="public/map.png" />
+  
+  <script>
+    const img = document.getElementById('mapImg');
+    const coordDiv = document.getElementById('coord');
+    
+    img.addEventListener('click', (e) => {
+      const rect = img.getBoundingClientRect();
+      const x = Math.round(e.clientX - rect.left);
+      const y = Math.round(e.clientY - rect.top);
+      coordDiv.innerHTML += `<br/>Clicked: x=${x}, y=${y}`;
+      console.log(`Clicked: x=${x}, y=${y}`);
+    });
+  </script>
+</body>
+</html>
