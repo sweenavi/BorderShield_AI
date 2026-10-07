@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { missionService } from '../../services/missionService';
 import { routingService } from '../../services/routingService';
 import { AlertTriangle, TrendingUp, TrendingDown, Shield, ChevronDown, ChevronUp, Activity } from 'lucide-react';
+import { nodeMaster } from '../../data/nodeMaster';
 
 const KpiCard = ({ label, value, sub, color, big }) => (
   <div style={{
@@ -40,15 +41,21 @@ export const RiskAnalysis = () => {
   let routeResult = missionId ? missionService.getRouteResult(missionId) : null;
 
   if (!missionId) {
-    const allMissions = missionService.getMissions().filter(m => m.routeResult);
+    const missions = missionService.getMissions();
+    // Only missions that can legitimately be routed
+    const selectableMissions = missions.filter(m => {
+      // Must have valid nodes
+      return nodeMaster.some(n => n.id === m.sourceId) && nodeMaster.some(n => n.id === m.destinationId);
+    });
+
     return (
       <div style={{ padding: '24px', fontFamily: 'var(--font-mono)' }}>
         <h1 style={{ margin: '0 0 16px 0', fontSize: '1.25rem', fontFamily: 'var(--font-sans)', color: 'var(--text-primary)' }}>SELECT MISSION FOR RISK ANALYSIS</h1>
-        {allMissions.length === 0 ? (
+        {selectableMissions.length === 0 ? (
           <div style={{ color: 'var(--status-warning)' }}>NO MISSIONS WITH CALCULATED ROUTES FOUND.</div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {allMissions.map(m => (
+            {selectableMissions.map(m => (
               <div key={m.id} style={{ backgroundColor: 'var(--bg-navy)', padding: '16px', border: '1px solid var(--border-medium)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ color: 'var(--accent-cyan)', fontWeight: 'bold' }}>{m.id}</div>

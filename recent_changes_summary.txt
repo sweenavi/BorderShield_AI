@@ -1,0 +1,31 @@
+================================================================================
+BORDERSHIELD AI - RECENT CHANGES SUMMARY (Last 2-3 Days)
+================================================================================
+
+1. UI/UX & THEME ENHANCEMENTS
+--------------------------------------------------------------------------------
+- Implemented a complete "Detective/CID" style dark-mode tactical theme using Navy Blue, Cyan, and Gold accents.
+- Login Page: Added a pulsing scanner/laser line animation to the BorderShield AI logo.
+- Login Page: Removed unnecessary references to "routing engine", "ML models", and "Road Ops" for a cleaner, restricted-access feel.
+- Global Layouts: Applied a consistent 24px padding margin across all pages (Dashboard, Create Mission, Route Analysis, etc.) to ensure content does not touch the edges of the screen.
+- Operational Map: Explicitly excluded from the 24px global padding to maintain an immersive, full-screen edge-to-edge mapping experience.
+
+2. MCREE (MULTI-CRITERIA RISK EVALUATION ENGINE) IMPLEMENTATION
+--------------------------------------------------------------------------------
+- Documentation Alignment: Rewrote `riskService.js` to strictly follow the scientific formulas provided in `SOURCE/Standardizarion Doc.txt`.
+- Piecewise Mapping: Implemented the exact threshold-based functions for Weather (Temperature, Wind, Rainfall, Snowfall, Visibility) and Terrain (Elevation, Terrain Type, Avalanche, Landslide, Water Crossings).
+- E.g., Temperature risk now scales dynamically using the documented `-10°C` and `25°C` thresholds instead of hardcoded default values.
+- AHP Weights: Verified that Weather, Terrain, and Road risks are properly aggregated using the documented frozen Analytical Hierarchy Process (AHP) weights.
+
+3. BDMRA (DYNAMIC MULTI-CRITERIA ROUTING ALGORITHM) & EDGE COST
+--------------------------------------------------------------------------------
+- Dijkstra Algorithm: Verified that `routingService.js` correctly builds the road network graph and runs a Standard Dijkstra Shortest Path Search.
+- Edge Penalty Method: Updated `operationalCostService.js` to correctly merge Distance and Risk into a unified Operational Cost. Formula used: Dynamic Cost = Distance * (1 + (Operational Risk / 100)). This prevents Dijkstra from blindly favoring high-risk routes just because they have fewer edges.
+- Route Pruning: Integrated the Admin road-blocking feature natively into the routing engine. If a road is marked "BLOCKED", it is completely removed from the adjacency list before Dijkstra runs.
+- Route Analysis UI: Updated titles in `RouteAnalysis.jsx` to reflect the "FROZEN WEIGHTS" and "DYNAMIC EDGE WEIGHT (EDGE-PENALTY METHOD)" logic, proving to the user that the backend strictly follows the architecture.
+
+4. ADMINISTRATIVE FEATURES
+--------------------------------------------------------------------------------
+- Operational Road Status: Created the road status modification workflow in `MasterDataManagement.jsx`.
+- Admins can now select an active road and change its operational status to OPEN, RESTRICTED, or BLOCKED.
+- This immediately updates the routing engine, ensuring subsequent mission calculations bypass blocked roads.

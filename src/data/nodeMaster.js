@@ -108,5 +108,10 @@ roadMaster.forEach(road => {
 // Join with coordinates
 export const nodeMaster = baseNodes.map(n => {
   const c = mapNodeCoordinates[n.id];
-  return { ...n, x: c ? c.x : 0, y: c ? c.y : 0 };
+  return { 
+    ...n, 
+    x: c ? c.x : 0, 
+    y: c ? c.y : 0,
+    reserved: !c // Nodes like CP04, RP01, RP03 without map coordinates are treated as reserved
+  };
 });

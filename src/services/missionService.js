@@ -81,6 +81,11 @@ export const missionService = {
   },
 
   _getRouteResults: () => {
+    // V2.2 Cache invalidation for Operational Cost formula fix
+    if (!localStorage.getItem('bordershield_v2_2_migration')) {
+      localStorage.removeItem('bordershield_route_results');
+      localStorage.setItem('bordershield_v2_2_migration', 'done');
+    }
     const data = localStorage.getItem('bordershield_route_results');
     return data ? JSON.parse(data) : {};
   }

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { nodeMaster, NODE_TYPES } from '../../data/nodeMaster';
 import { roadMaster } from '../../data/roadMaster';
-import { Database, Map, Cloud, Activity, Clock, AlertTriangle } from 'lucide-react';
+import { roadStatusService } from '../../services/roadStatusService';
+import { Database, Map, Cloud, Activity, Clock, AlertTriangle, X } from 'lucide-react';
 
 import { geographicMaster } from '../../data/geographicMaster';
 import { checkpointMaster } from '../../data/checkpointMaster';
@@ -19,7 +20,8 @@ const MODEL_CONFIG = [
   { param: 'Weather Risk',       value: '50% (0.50)' },
   { param: 'Terrain Risk',       value: '30% (0.30)' },
   { param: 'Road Risk',          value: '20% (0.20)' },
-  { param: 'Dynamic Weighting',  value: 'Cost = V_base/V_effective * Dist * (1 + OperationalRisk/100)' },
+  { param: 'Dynamic Weighting',  value: 'OperationalCost = OperationalRisk (Frontend Prototype)' },
+  { param: 'Architecture Flow',  value: 'MCREE → Op. Risk → Op. Cost → Dynamic Edge Weight → BDMRA' },
   { param: 'Graph Algorithm',    value: 'Standard Dijkstra' },
   { param: 'Status',             value: 'LOCAL PROTOTYPE' },
 ];
@@ -27,11 +29,11 @@ const MODEL_CONFIG = [
 const TH = ({ children }) => (
   <th style={{ padding: '9px 12px', fontFamily: 'var(--font-mono)', fontSize: '0.5625rem', letterSpacing: '0.1em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-medium)', textAlign: 'left' }}>{children}</th>
 );
-const TD = ({ children, style }) => (
-  <td style={{ padding: '9px 12px', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)', ...style }}>{children}</td>
+const TD = ({ children, style, onClick }) => (
+  <td onClick={onClick} style={{ padding: '9px 12px', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)', cursor: onClick ? 'pointer' : 'default', ...style }}>{children}</td>
 );
 
-const DataTable = ({ columns, data, idKey }) => (
+const DataTable = ({ columns, data, idKey, onRowClick }) => (
   <div style={{ overflowX: 'auto', maxHeight: '500px', overflowY: 'auto' }}>
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--bg-navy)', zIndex: 1 }}>
@@ -39,9 +41,11 @@ const DataTable = ({ columns, data, idKey }) => (
       </thead>
       <tbody>
         {data.slice(0, 100).map((row, i) => (
-          <tr key={row[idKey] || i} style={{ backgroundColor: i % 2 === 0 ? 'transparent' : 'var(--bg-navy)' }}>
+          <tr key={row[idKey] || i} onClick={() => onRowClick && onRowClick(row)} style={{ backgroundColor: i % 2 === 0 ? 'transparent' : 'var(--bg-navy)', cursor: onRowClick ? 'pointer' : 'default' }}>
             {columns.map(c => (
-              <TD key={c.key} style={c.style}>{row[c.key] || '—'}</TD>
+              <TD key={c.key} style={c.style}>
+                {c.render ? c.render(row[c.key], row) : (row[c.key] || '—')}
+              </TD>
             ))}
           </tr>
         ))}
@@ -53,13 +57,31 @@ const DataTable = ({ columns, data, idKey }) => (
 export const MasterDataManagement = () => {
   const [tab, setTab] = useState(0);
   const [search, setSearch] = useState('');
+  
+  const [editingRoad, setEditingRoad] = useState(null);
+  const [roadStatus, setRoadStatus] = useState('OPEN');
+  const [statusReason, setStatusReason] = useState('');
+  
+  // To trigger re-renders when road status changes
+  const [tick, setTick] = useState(0);
+
+  const handleSaveRoadStatus = () => {
+    if (!editingRoad) return;
+    roadStatusService.setRoadStatus(editingRoad.id, roadStatus, statusReason);
+    setEditingRoad(null);
+    setTick(t => t + 1);
+  };
+
+  const getEffectiveRoads = () => {
+    return roadStatusService.getAllEffectiveRoads();
+  };
 
   return (
-    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
       <div>
         <h1 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', fontFamily: 'var(--font-sans)', fontWeight: 700, letterSpacing: '0.04em' }}>MASTER DATA MANAGEMENT</h1>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
-          VIEW-ONLY MODE — FROZEN DATASETS
+          VIEW-ONLY MODE — FROZEN DATASETS (ROAD STATUS EDITABLE)
         </div>
       </div>
 
@@ -87,11 +109,19 @@ export const MasterDataManagement = () => {
         { label: 'MAP X', key: 'x' }
       ]} />}
 
-      {tab === 1 && <DataTable idKey="id" data={roadMaster} columns={[
+      {tab === 1 && <DataTable idKey="id" data={getEffectiveRoads()} onRowClick={(row) => {
+        setEditingRoad(row);
+        setRoadStatus(row.operationalStatus || 'OPEN');
+        setStatusReason('');
+      }} columns={[
         { label: 'ROAD ID', key: 'id', style: { color: 'var(--accent-cyan)', fontWeight: 600 } },
         { label: 'FROM', key: 'from' },
         { label: 'TO', key: 'to' },
         { label: 'DIST (km)', key: 'distanceKm' },
+        { label: 'STATUS', key: 'operationalStatus', render: (val) => {
+          const c = val === 'BLOCKED' ? 'var(--status-danger)' : val === 'RESTRICTED' ? 'var(--status-warning)' : 'var(--status-success)';
+          return <span style={{ color: c, fontWeight: 'bold' }}>{val || 'OPEN'}</span>;
+        } },
         { label: 'SURFACE', key: 'surfaceType' },
         { label: 'TERRAIN', key: 'terrainType' }
       ]} />}
@@ -157,6 +187,51 @@ export const MasterDataManagement = () => {
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-primary)', fontWeight: 600 }}>{value}</span>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Road Edit Modal */}
+      {editingRoad && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '400px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--accent-cyan)', padding: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0, fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'var(--accent-cyan)' }}>EDIT ROAD STATUS</h2>
+              <X size={18} style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setEditingRoad(null)} />
+            </div>
+            
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+              ROAD ID: <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{editingRoad.id}</span> ({editingRoad.from} → {editingRoad.to})
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--text-muted)', marginBottom: '8px' }}>OPERATIONAL STATUS</div>
+              <select 
+                value={roadStatus} 
+                onChange={e => setRoadStatus(e.target.value)}
+                style={{ width: '100%', padding: '10px', backgroundColor: 'var(--bg-navy)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+              >
+                <option value="OPEN">OPEN</option>
+                <option value="RESTRICTED">RESTRICTED</option>
+                <option value="BLOCKED">BLOCKED</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--text-muted)', marginBottom: '8px' }}>REASON FOR CHANGE</div>
+              <input 
+                type="text" 
+                value={statusReason} 
+                onChange={e => setStatusReason(e.target.value)}
+                placeholder="e.g. Landslide reported"
+                style={{ width: '100%', padding: '10px', backgroundColor: 'var(--bg-navy)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button onClick={() => setEditingRoad(null)} style={{ padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--border-medium)', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>CANCEL</button>
+              <button onClick={handleSaveRoadStatus} style={{ padding: '8px 16px', backgroundColor: 'var(--accent-cyan-dim)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>SAVE STATUS</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

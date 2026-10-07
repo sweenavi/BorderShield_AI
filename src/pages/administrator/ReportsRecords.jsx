@@ -1,31 +1,33 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { missionService } from '../../services/missionService';
+import { routingService } from '../../services/routingService';
 import { FileText, Download, Printer, Eye, CheckCircle, Clock } from 'lucide-react';
-
-const MOCK_REPORTS = [
-  { id: 'RPT-2026-0042', missionId: 'MSN-3066', mission: 'Supply Convoy — CP03→L11',  generated: '2026-09-28 08:42', generatedBy: 'Vikram Singh',  type: 'MISSION ANALYSIS', status: 'READY', risk: '18%',  route: 'Route B' },
-  { id: 'RPT-2026-0041', missionId: 'MSN-3052', mission: 'Logistics Run — L01→L20',   generated: '2026-09-27 15:18', generatedBy: 'Arjun Kapoor',  type: 'MISSION ANALYSIS', status: 'READY', risk: '43%',  route: 'Route C' },
-  { id: 'RPT-2026-0040', missionId: 'MSN-3044', mission: 'Medical Supply — CP04→L16', generated: '2026-09-26 10:05', generatedBy: 'Vikram Singh',  type: 'MISSION ANALYSIS', status: 'READY', risk: '62%',  route: 'Route A' },
-  { id: 'RPT-2026-0039', missionId: 'MSN-3038', mission: 'Patrol Route — L08→J15',   generated: '2026-09-25 09:33', generatedBy: 'Arjun Kapoor',  type: 'MISSION ANALYSIS', status: 'PENDING', risk: '—',   route: '—' },
-];
 
 export const ReportsRecords = () => {
   const [selected, setSelected] = useState(null);
+  const navigate = useNavigate();
   const liveMissions = missionService.getMissions();
 
   const allReports = [
-    ...MOCK_REPORTS,
-    ...liveMissions.map(m => ({
-      id: `RPT-${m.id}`,
-      missionId: m.id,
-      mission: `${m.missionName || m.missionType} — ${m.sourceId}→${m.destinationId}`,
-      generated: m.createdAt ? new Date(m.createdAt).toLocaleString('en-GB') : '—',
-      generatedBy: 'Mission Planner',
-      type: 'MISSION ANALYSIS',
-      status: m.status === 'COMPLETED' ? 'READY' : 'PENDING',
-      risk: m.routeResult ? `${m.routeResult.recommended?.risk || '—'}%` : '—',
-      route: m.routeResult ? m.routeResult.recommended?.routeId || '—' : '—',
-    }))
+    ...liveMissions.map(m => {
+      let routeRes = missionService.getRouteResult(m.id);
+      if (!routeRes && m.sourceId && m.destinationId) {
+        routeRes = routingService.calculateRoute(m.sourceId, m.destinationId, m);
+        if (routeRes) missionService.saveRouteResult(m.id, routeRes);
+      }
+      return {
+        id: `RPT-${m.id}`,
+        missionId: m.id,
+        mission: `${m.missionName || m.missionType} — ${m.sourceId}→${m.destinationId}`,
+        generated: m.createdAt ? new Date(m.createdAt).toLocaleString('en-GB') : '—',
+        generatedBy: 'Mission Planner',
+        type: 'MISSION ANALYSIS',
+        status: m.status === 'COMPLETED' ? 'READY' : 'PENDING',
+        risk: routeRes ? `${routeRes.recommended?.metrics?.averageRisk || '—'}%` : '—',
+        route: routeRes ? routeRes.recommended?.routeId || '—' : '—',
+      };
+    })
   ];
 
   const stats = {
@@ -90,8 +92,8 @@ export const ReportsRecords = () => {
                       <div style={{ display: 'flex', gap: '4px' }}>
                         {[
                           { icon: Eye,      label: 'VIEW',     action: () => setSelected(r) },
-                          { icon: Download, label: 'PDF',      action: () => alert(`Downloading ${r.id}.pdf`) },
-                          { icon: Printer,  label: 'PRINT',    action: () => window.print() },
+                          { icon: Download, label: 'PDF',      action: () => navigate(`/admin/missions/${r.missionId}/report?action=print`) },
+                          { icon: Printer,  label: 'PRINT',    action: () => navigate(`/admin/missions/${r.missionId}/report?action=print`) },
                         ].map(({ icon: Ic, label, action }) => (
                           <button key={label} onClick={e => { e.stopPropagation(); action(); }} style={{
                             display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px',
@@ -142,11 +144,11 @@ export const ReportsRecords = () => {
 
             <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <button style={{ padding: '9px', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', backgroundColor: 'var(--accent-cyan-dim)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', cursor: 'pointer', letterSpacing: '0.06em' }}
-                onClick={() => window.location.href = `/admin/missions/${selected.missionId}/report`}>
+                onClick={() => navigate(`/admin/missions/${selected.missionId}/report`)}>
                 VIEW FULL REPORT
               </button>
               <button style={{ padding: '9px', fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', backgroundColor: 'transparent', border: '1px solid var(--border-medium)', color: 'var(--text-secondary)', cursor: 'pointer', letterSpacing: '0.06em' }}
-                onClick={() => window.location.href = `/admin/missions/${selected.missionId}/report`}>
+                onClick={() => navigate(`/admin/missions/${selected.missionId}/report?action=print`)}>
                 DOWNLOAD PDF
               </button>
             </div>

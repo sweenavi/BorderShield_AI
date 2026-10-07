@@ -209,7 +209,7 @@ export const AdminLayout = () => {
             UTC {new Date().toISOString().substring(11, 19)} Z
           </div>
         </header>
-        <main style={{ flex: 1, overflowY: 'auto', backgroundColor: 'var(--bg-dark-navy)' }}>
+        <main style={{ flex: 1, overflowY: 'auto', backgroundColor: 'var(--bg-dark-navy)', padding: location.pathname.includes('/map') ? '0' : '24px' }}>
           <Outlet />
         </main>
       </div>

@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useRef, useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { missionService } from '../../services/missionService';
 import { routingService, classifyRisk } from '../../services/routingService';
 import { nodeMaster } from '../../data/nodeMaster';
@@ -9,10 +9,15 @@ import { Button } from '../../components/common/Button';
 
 export const MissionReport = () => {
   const { missionId } = useParams();
+  const [searchParams] = useSearchParams();
   const mission = missionService.getMissionById(missionId);
 
-  // Read STORED route result — never recalculate independently
+  // Read STORED route result — never recalculate independently unless missing
   let routeResult = missionService.getRouteResult(missionId);
+  if (!routeResult && mission && mission.sourceId && mission.destinationId) {
+    routeResult = routingService.calculateRoute(mission.sourceId, mission.destinationId, mission);
+    if (routeResult) missionService.saveRouteResult(missionId, routeResult);
+  }
 
   if (!mission || !routeResult) return <div style={{ padding: '24px', fontFamily: 'var(--font-mono)' }}>REPORT DATA UNAVAILABLE</div>;
 
@@ -22,13 +27,33 @@ export const MissionReport = () => {
     window.print();
   };
 
+  useEffect(() => {
+    if (searchParams.get('action') === 'print' && mission && routeResult) {
+      setTimeout(() => window.print(), 500);
+    }
+  }, [searchParams, mission, routeResult]);
+
   return (
     <div style={{ position: 'relative' }}>
       <style>{`
+        /* Global report table styles (Screen + Print) */
+        .report-container table, .report-container th, .report-container td, .report-container tr {
+          background-color: transparent !important;
+          color: black !important;
+          border-color: #666 !important;
+        }
+        .report-container tbody tr {
+          background-color: transparent !important;
+        }
+        .report-container thead tr {
+          background-color: #f9f9f9 !important;
+        }
+
         @media print {
           .no-print, .layout-sidebar, .layout-header { display: none !important; }
           body, .layout-main, main { background: white !important; overflow: visible !important; height: auto !important; }
-          .report-container { max-width: 100% !important; margin: 0 !important; padding: 20px !important; border: none !important; box-shadow: none !important; }
+          .report-container { max-width: 100% !important; margin: 0 !important; padding: 20px !important; border: none !important; box-shadow: none !important; color: black !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
       `}</style>
 

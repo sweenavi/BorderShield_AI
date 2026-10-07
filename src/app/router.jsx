@@ -132,6 +132,7 @@ export const router = createBrowserRouter([
             children: [
               { index: true, element: <MissionDetails /> },
               { path: 'route',   element: <RouteAnalysis /> },
+              { path: 'risk',    element: <RiskAnalysis /> },
               { path: 'monitor', element: <MissionMonitoring /> },
               { path: 'report',  element: <MissionReport /> },
             ]

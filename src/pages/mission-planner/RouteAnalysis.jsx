@@ -221,7 +221,7 @@ export const RouteAnalysis = () => {
 
               {/* AHP Aggregation */}
               <div style={{ borderTop: '1px solid var(--border-medium)', paddingTop: '16px' }}>
-                <div style={{ ...subTitle, color: 'var(--text-secondary)' }}>AHP AGGREGATION (Frontend Prototype Defaults)</div>
+                <div style={{ ...subTitle, color: 'var(--text-secondary)' }}>AHP AGGREGATION (FROZEN WEIGHTS)</div>
                 <div style={{ ...kvGrid, fontSize: '0.75rem' }}>
                   <div>Weather Risk × {routeResult.mcree.weights.weather}</div><div>{firstSeg.weatherRisk} × {routeResult.mcree.weights.weather} = {Math.round(firstSeg.weatherRisk * routeResult.mcree.weights.weather * 100) / 100}</div>
                   <div>Terrain Risk × {routeResult.mcree.weights.terrain}</div><div>{firstSeg.terrainRisk} × {routeResult.mcree.weights.terrain} = {Math.round(firstSeg.terrainRisk * routeResult.mcree.weights.terrain * 100) / 100}</div>
@@ -259,7 +259,7 @@ export const RouteAnalysis = () => {
           {/* G. ALTERNATIVE ROUTES */}
           <div style={panelStyle}>
             <div style={sectionTitle}>ALTERNATIVE ROUTES</div>
-            <div style={subTitle}>FRONTEND PROTOTYPE STRATEGY (EDGE-PENALTY METHOD)</div>
+            <div style={subTitle}>DYNAMIC EDGE WEIGHT (EDGE-PENALTY METHOD)</div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', ...mono }}>
                 <thead>

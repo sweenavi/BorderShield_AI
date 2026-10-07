@@ -37,6 +37,19 @@ export const Login = () => {
       display: 'flex', height: '100vh', width: '100vw',
       backgroundColor: 'var(--bg-dark-navy)', color: 'var(--text-primary)', overflow: 'hidden'
     }}>
+      <style>{`
+        @keyframes cidPulse {
+          0% { filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.2)) scale(1); }
+          50% { filter: drop-shadow(0 0 45px rgba(0, 229, 255, 0.8)) scale(1.05); }
+          100% { filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.2)) scale(1); }
+        }
+        @keyframes cidScan {
+          0% { top: 0%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { top: 98%; opacity: 0; }
+        }
+      `}</style>
 
       {/* ── LEFT: Full Branding ─────────────────────────────────────── */}
       <div style={{
@@ -58,10 +71,28 @@ export const Login = () => {
         <div style={{ position: 'absolute', bottom: 0, right: 0, width: '64px', height: '64px', borderBottom: '2px solid var(--accent-cyan)', borderRight: '2px solid var(--accent-cyan)', opacity: 0.5 }} />
 
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', width: '100%' }}>
-          <img
-            src="/logo.png" alt="BorderShield AI"
-            style={{ width: '160px', height: 'auto', marginBottom: '28px', filter: 'drop-shadow(0 0 24px rgba(0,229,255,0.2))' }}
-          />
+          <div style={{ position: 'relative', display: 'inline-block', marginBottom: '28px' }}>
+            <img
+              src="/logo.png" alt="BorderShield AI"
+              style={{ 
+                width: '320px', 
+                height: 'auto', 
+                display: 'block',
+                animation: 'cidPulse 4s infinite ease-in-out'
+              }}
+            />
+            {/* Forensic CID Scanner Line */}
+            <div style={{
+              position: 'absolute',
+              left: 0,
+              width: '100%',
+              height: '2px',
+              backgroundColor: 'rgba(0, 229, 255, 0.8)',
+              boxShadow: '0 0 12px 3px rgba(0, 229, 255, 0.6), 0 -10px 20px rgba(0,229,255,0.2)',
+              animation: 'cidScan 3s infinite linear',
+              pointerEvents: 'none'
+            }} />
+          </div>
           <h1 style={{
             margin: '0 0 8px 0', fontSize: '1.875rem', fontFamily: 'var(--font-sans)',
             fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-primary)'
@@ -80,21 +111,7 @@ export const Login = () => {
           }}>◆ LEH–LADAKH–SIACHEN SECTOR ◆</div>
         </div>
 
-        {/* System services row */}
-        <div style={{
-          position: 'absolute', bottom: '24px',
-          left: '48px', right: '48px',
-          display: 'flex', gap: '16px',
-          fontFamily: 'var(--font-mono)', fontSize: '0.6rem',
-          color: 'var(--text-muted)'
-        }}>
-          {['ROUTING ENGINE', 'ML MODEL', 'RISK ENGINE', 'XAI MODULE'].map(svc => (
-            <div key={svc} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ color: 'var(--status-success)', fontSize: '0.55rem' }}>●</span>
-              {svc}
-            </div>
-          ))}
-        </div>
+
       </div>
 
       {/* ── RIGHT: Authentication ───────────────────────────────────── */}
@@ -152,7 +169,6 @@ export const Login = () => {
               <div style={{ display: 'flex', gap: '8px' }}>
                 {[
                   { key: 'planner', label: 'Officer' },
-                  { key: 'ops',     label: 'Road Ops' },
                   { key: 'admin',   label: 'Admin' },
                 ].map(r => (
                   <button

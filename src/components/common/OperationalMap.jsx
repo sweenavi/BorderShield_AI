@@ -119,6 +119,7 @@ export const OperationalMap = ({
   const [showNodes, setShowNodes] = useState(true);
   const [showRiskColors, setShowRiskColors] = useState(true);
   const [centerCoord, setCenterCoord] = useState(null);
+  const [searchedNodeId, setSearchedNodeId] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef(null);
 
@@ -153,10 +154,16 @@ export const OperationalMap = ({
     else document.exitFullscreen?.();
   };
 
-  const resetView = () => setCenterCoord(null);
+  const resetView = () => {
+    setCenterCoord(null);
+    setSearchedNodeId(null);
+  };
   const locateNode = (id) => {
     const coord = getMapCoordinate(id);
-    if (coord) setCenterCoord(coord);
+    if (coord) {
+      setCenterCoord(coord);
+      setSearchedNodeId(id);
+    }
   };
 
   const ctrlBtn = (onClick, title, children, active = false) => (
@@ -233,9 +240,9 @@ export const OperationalMap = ({
                   width: '220px', cursor: 'pointer'
                 }}
               >
-                <option value="">Locate Operational Point…</option>
+                <option value="" style={{ backgroundColor: '#0d1b2a', color: '#F0F4F8' }}>Locate Operational Point…</option>
                 {nodeMaster.filter(n => n.type !== 'J' && !n.reserved).map(n => (
-                  <option key={n.id} value={n.id}>{n.id} — {n.name}</option>
+                  <option key={n.id} value={n.id} style={{ backgroundColor: '#0d1b2a', color: '#F0F4F8' }}>{n.id} — {n.name}</option>
                 ))}
               </select>
             </div>
@@ -403,6 +410,7 @@ export const OperationalMap = ({
             const isSource   = node.id === sourceId;
             const isDest     = node.id === destId;
             const isOnRoute  = routeNodeSet.has(node.id);
+            const isSearched = node.id === searchedNodeId;
 
             // Hide junction nodes unless on route
             if (node.type === 'J' && !isOnRoute) return null;
@@ -414,6 +422,8 @@ export const OperationalMap = ({
               ? createEndpointIcon('SOURCE')
               : isDest
               ? createEndpointIcon('DEST')
+              : isSearched
+              ? createEndpointIcon('DEST') // using pulsing purple for searched location
               : createNodeIcon(node.type, isOnRoute);
 
             return (
@@ -421,8 +431,13 @@ export const OperationalMap = ({
                 key={node.id}
                 position={getMapCoordinate(node.id)}
                 icon={icon}
-                zIndexOffset={isSource || isDest ? 2000 : isOnRoute ? 500 : 0}
+                zIndexOffset={isSource || isDest || isSearched ? 2000 : isOnRoute ? 500 : 0}
               >
+                <Tooltip direction="top" offset={[0, -10]} opacity={0.95}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 600, color: '#000' }}>
+                    {node.id} — {node.name}
+                  </div>
+                </Tooltip>
                 <Popup closeButton={false}>
                   <div style={{
                     fontFamily: 'monospace', fontSize: '12px',

@@ -1,5 +1,6 @@
 // Final BorderShield AI Multi-Criteria Risk Evaluation Engine (MCREE) Standardization
 // As per "Risk Assignment.txt" and "Standardizarion Doc.txt"
+import { operationalCostService } from './operationalCostService.js';
 
 export const riskService = {
   weights: {
@@ -10,64 +11,62 @@ export const riskService = {
 
   standardizeWeather: (weather) => {
     // 1. Temperature Risk
-    // Minimum: -40°C, Cold Threshold: -10°C, Hot Threshold: 25°C, Maximum: 30°C
+    // Minimum: -40°C, Cold Threshold: -10°C, Hot Threshold: 25°C, Maximum: 50°C
     let tempRisk = 0;
     const temp = weather['Temperature (°C)'] || 0;
     if (temp <= -10) {
       tempRisk = ((-10 - temp) / 30) * 100;
     } else if (temp >= 25) {
-      tempRisk = ((temp - 25) / 5) * 100;
+      tempRisk = ((temp - 25) / 25) * 100;
     } else {
       tempRisk = 0;
     }
     tempRisk = Math.max(0, Math.min(100, tempRisk));
 
     // 2. Wind Speed Risk
-    // Minimum: 0, Normal Threshold: 30, Maximum: 70
+    // Normal Threshold: 30, Maximum: 70
     let windRisk = 0;
     const wind = weather['Wind Speed (km/h)'] || 0;
-    if (wind > 30 && wind < 70) {
+    if (wind > 30) {
       windRisk = ((wind - 30) / 40) * 100;
-    } else if (wind >= 70) {
-      windRisk = 100;
     }
+    windRisk = Math.max(0, Math.min(100, windRisk));
     
     // 3. Rainfall Risk
+    // Minimum: 0, Normal Threshold: 5, Max: 50
     let rainRisk = 0;
-    const rainRaw = weather.Rainfall || 'No';
-    const rain = typeof rainRaw === 'number' ? rainRaw : (rainRaw === 'Yes' || rainRaw.includes('Heavy') ? 50 : 0);
-    if (rain > 50) rainRisk = 100;
-    else if (rain > 20) rainRisk = 80;
-    else if (rain > 5) rainRisk = 50;
-    else if (rain >= 1) rainRisk = 20;
-    else rainRisk = 0;
+    const rainRaw = weather['Rainfall'] || 'No';
+    const rain = typeof rainRaw === 'number' ? rainRaw : (rainRaw === 'Yes' || rainRaw.includes('Heavy') ? 25 : 0);
+    if (rain > 5) {
+      rainRisk = ((rain - 5) / 45) * 100;
+    }
+    rainRisk = Math.max(0, Math.min(100, rainRisk));
 
     // 4. Snowfall Risk
+    // Minimum: 0, Threshold: 5, Max: 50
     let snowRisk = 0;
-    const snowRaw = weather.Snowfall || 'No';
-    const snow = typeof snowRaw === 'number' ? snowRaw : (snowRaw === 'Yes' || snowRaw.includes('Heavy') ? 50 : 0);
-    if (snow > 50) snowRisk = 100;
-    else if (snow >= 50) snowRisk = 80;
-    else if (snow >= 20) snowRisk = 50;
-    else if (snow >= 5) snowRisk = 20;
-    else snowRisk = 0;
+    const snowRaw = weather['Snowfall'] || 'No';
+    const snow = typeof snowRaw === 'number' ? snowRaw : (snowRaw === 'Yes' || snowRaw.includes('Heavy') ? 25 : 0);
+    if (snow > 5) {
+      snowRisk = ((snow - 5) / 45) * 100;
+    }
+    snowRisk = Math.max(0, Math.min(100, snowRisk));
 
     // 5. Visibility Risk
+    // High visibility -> lower risk. Range: 0 to 3000m
     let visRisk = 0;
     const visRaw = weather.Visibility || 'Excellent';
     if (typeof visRaw === 'number') {
-      if (visRaw <= 50) visRisk = 100;
-      else if (visRaw <= 200) visRisk = 70;
-      else if (visRaw <= 500) visRisk = 40;
-      else if (visRaw <= 1000) visRisk = 20;
-      else visRisk = 0;
+      if (visRaw < 3000) {
+        visRisk = ((3000 - visRaw) / 3000) * 100;
+      }
     } else {
       if (visRaw.includes('Poor')) visRisk = 100;
-      else if (visRaw.includes('Moderate')) visRisk = 40;
+      else if (visRaw.includes('Moderate')) visRisk = 50;
       else visRisk = 0;
     }
+    visRisk = Math.max(0, Math.min(100, visRisk));
 
-    // Aggregate Weather Risk
     return Math.round((tempRisk + windRisk + rainRisk + snowRisk + visRisk) / 5);
   },
 
@@ -78,37 +77,32 @@ export const riskService = {
     if (tType === 'Glacier') typeRisk = 100;
     else if (tType === 'Snow') typeRisk = 80;
     else if (tType === 'Rocky Mountain') typeRisk = 70;
-    else if (tType === 'Rocky') typeRisk = 60;
     else if (tType === 'Mountain') typeRisk = 50;
     else if (tType === 'Valley') typeRisk = 20;
     else if (tType === 'Plain') typeRisk = 10;
-    else typeRisk = 50;
+    else typeRisk = 40;
 
-    // 7. Avg Elevation Risk
+    // 7. Avg Elevation Risk (Threshold: 3000, Max: 6000)
     let elevRisk = 0;
     const e = terrain['Avg Elevation (m)'] || 3000;
-    if (e > 6000) elevRisk = 100;
-    else if (e >= 5500) elevRisk = 95;
-    else if (e >= 5000) elevRisk = 80;
-    else if (e >= 4500) elevRisk = 65;
-    else if (e >= 4000) elevRisk = 45;
-    else if (e >= 3500) elevRisk = 25;
-    else if (e >= 3000) elevRisk = 10;
-    else elevRisk = 0;
+    if (e > 3000) {
+      elevRisk = ((e - 3000) / 3000) * 100;
+    }
+    elevRisk = Math.max(0, Math.min(100, elevRisk));
 
     // 8. Landslide Risk
     let landRisk = 0;
     const lRisk = terrain['Landslide Risk'] || 'No';
     if (lRisk === 'High') landRisk = 100;
-    else if (lRisk === 'Medium') landRisk = 60;
-    else if (lRisk === 'Low') landRisk = 25;
+    else if (lRisk === 'Medium') landRisk = 50;
+    else if (lRisk === 'Low') landRisk = 20;
 
     // 9. Avalanche Risk
     let avaRisk = 0;
     const aRisk = terrain['Avalanche Risk'] || 'No';
     if (aRisk === 'Very High') avaRisk = 100;
-    else if (aRisk === 'High') avaRisk = 75;
-    else if (aRisk === 'Medium') avaRisk = 45;
+    else if (aRisk === 'High') avaRisk = 80;
+    else if (aRisk === 'Medium') avaRisk = 50;
     else if (aRisk === 'Low') avaRisk = 20;
 
     // 10. Water Crossing Risk
@@ -135,13 +129,10 @@ export const riskService = {
     else if (st === 'Gravel') surfRisk = 20;
     else if (st === 'Asphalt') surfRisk = 0;
 
-    // 13. Condition Risk
-    let condRisk = 0;
-    // Condition could be from terrain's Road Condition or just mapped
-    return Math.round((typeRisk + surfRisk + condRisk) / 3);
+    return Math.round((typeRisk + surfRisk) / 2);
   },
 
-  evaluateEdgeCost: (weather, terrain, roadRaw) => {
+  evaluateEdgeCost: (weather, terrain, roadRaw, speedResult, distance) => {
     const wRisk = riskService.standardizeWeather(weather || {});
     const tRisk = riskService.standardizeTerrain(terrain || {});
     const rRisk = riskService.standardizeRoad(roadRaw || {});
@@ -153,7 +144,11 @@ export const riskService = {
       (rRisk * riskService.weights.road)
     );
 
-    const dynamicCost = operationalRisk;
+    const dynamicCost = operationalCostService.calculateDynamicCost(
+      operationalRisk, 
+      distance || roadRaw?.distance || 1, 
+      speedResult
+    );
 
     return {
       weatherRisk: wRisk,

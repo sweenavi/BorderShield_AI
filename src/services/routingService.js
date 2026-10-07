@@ -142,8 +142,8 @@ export const routingService = {
           const rawTerrain = edge._raw.terrain || {};
           const rawRoad = edge._raw.road || {};
 
-          const riskResult = riskService.evaluateEdgeCost(rawWeather, rawTerrain, rawRoad);
           const speedResult = getEffectiveSpeed(rawWeather, rawTerrain, rawRoad);
+          const riskResult = riskService.evaluateEdgeCost(rawWeather, rawTerrain, rawRoad, speedResult, edge.distance);
           const segmentETA_minutes = (edge.distance / speedResult.V_effective) * 60;
 
           totalRisk += riskResult.operationalRisk;
@@ -199,7 +199,8 @@ export const routingService = {
           const rawWeather = neighbor._raw.weather || {};
           const rawTerrain = neighbor._raw.terrain || {};
           const rawRoad = neighbor._raw.road || {};
-          const riskEval = riskService.evaluateEdgeCost(rawWeather, rawTerrain, rawRoad);
+          const speedResult = getEffectiveSpeed(rawWeather, rawTerrain, rawRoad);
+          const riskEval = riskService.evaluateEdgeCost(rawWeather, rawTerrain, rawRoad, speedResult, neighbor.distance);
 
           let edgeDynamicCost = riskEval.dynamicCost;
 
